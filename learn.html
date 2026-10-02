@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Quizzes | Hidayah Islamic and Arabic School</title>
+    <link rel="icon" type="image/png" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#062b12" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="learn">
+    <div id="site-header"></div>
+    <section class="pagehead">
+      <div class="wrap">
+        <h1>Quizzes and games</h1>
+        <p>Test yourself, earn XP and climb the leaderboard</p>
+      </div>
+    </section>
+    <section class="sec">
+      <div class="wrap dgrid">
+        <div>
+          <div class="xp">
+            <span>Your level</span><br /><b id="lv">1</b> <span id="xpt"></span>
+            <div class="bar"><i id="xpb"></i></div>
+          </div>
+          <div class="panel">
+            <h3>Top students</h3>
+            <ol class="lb" id="lb">
+              <li>Loading...</li>
+            </ol>
+          </div>
+        </div>
+        <div>
+          <div class="tabs" id="tabs"></div>
+          <div
+            class="grid"
+            id="ql"
+            style="grid-template-columns: repeat(auto-fill, minmax(230px, 1fr))"
+          ></div>
+          <div class="panel" style="margin-top: 28px; text-align: center">
+            <h3>Arabic letter match</h3>
+            <p style="color: var(--mut)">
+              Match each Arabic letter with its name. Fewer moves is better.
+            </p>
+            <div class="mem" id="mem"></div>
+            <p id="mv" style="font-weight: 800"></p>
+            <button class="btn b3" id="rs">New game</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div id="site-footer"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      (async () => {
+        const c = await requireUser();
+        if (!c) return;
+        const [a, b, d] = await Promise.all([
+          sb
+            .from("quizzes")
+            .select("id,title,subject,level,q_count")
+            .order("created_at", { ascending: false }),
+          sb
+            .from("attempts")
+            .select("quiz_id,score,total,xp")
+            .eq("student_id", c.user.id),
+          sb.rpc("leaderboard"),
+        ]);
+        const qs = a.data || [],
+          my = b.data || [],
+          xp = my.reduce((s, r) => s + (r.xp || 0), 0);
+        document.getElementById("lv").textContent = Math.floor(xp / 100) + 1;
+        document.getElementById("xpt").textContent = xp + " XP";
+        setTimeout(
+          () => (document.getElementById("xpb").style.width = (xp % 100) + "%"),
+          200,
+        );
+        document.getElementById("lb").innerHTML = (d.data || []).length
+          ? d.data
+              .map(
+                (r) =>
+                  "<li>" + esc(r.name) + "<span>" + r.xp + " XP</span></li>",
+              )
+              .join("")
+          : "<li>No scores yet. Be the first.</li>";
+        const best = {};
+        my.forEach((r) => {
+          const p = Math.round((r.score / r.total) * 100);
+          best[r.quiz_id] = Math.max(best[r.quiz_id] || 0, p);
+        });
+        let cur = "All";
+        const subs = ["All", ...new Set(qs.map((q) => q.subject))];
+        function draw() {
+          document.getElementById("tabs").innerHTML = subs
+            .map(
+              (s) =>
+                '<button class="tab ' +
+                (s === cur ? "on" : "") +
+                '" data-s="' +
+                esc(s) +
+                '">' +
+                esc(s) +
+                "</button>",
+            )
+            .join("");
+          const l = qs.filter((q) => cur === "All" || q.subject === cur);
+          document.getElementById("ql").innerHTML = l.length
+            ? l
+                .map(
+                  (q) =>
+                    '<article class="card"><h3>' +
+                    esc(q.title) +
+                    "</h3><p>" +
+                    esc(q.subject) +
+                    " | " +
+                    q.q_count +
+                    ' questions</p><span class="tag">' +
+                    (best[q.id] != null
+                      ? "Best: " + best[q.id] + "%"
+                      : esc(q.level || "New")) +
+                    '</span><br><a class="btn b3" href="quiz.html?id=' +
+                    q.id +
+                    '">' +
+                    (best[q.id] != null ? "Play again" : "Start") +
+                    "</a></article>",
+                )
+                .join("")
+            : "<p>No quizzes yet. Your teachers will post them here.</p>";
+        }
+        document.getElementById("tabs").onclick = (e) => {
+          if (e.target.dataset.s) {
+            cur = e.target.dataset.s;
+            draw();
+          }
+        };
+        draw();
+        const P = [
+            ["ا", "Alif"],
+            ["ب", "Ba"],
+            ["ت", "Ta"],
+            ["ث", "Tha"],
+            ["ج", "Jim"],
+            ["ح", "Ha"],
+            ["خ", "Kha"],
+            ["د", "Dal"],
+          ],
+          mem = document.getElementById("mem");
+        function game() {
+          let open = [],
+            moves = 0,
+            done = 0,
+            lock = false;
+          const cs = P.flatMap(([x, n], i) => [
+            [i, x],
+            [i, n],
+          ]).sort(() => Math.random() - 0.5);
+          document.getElementById("mv").textContent = "";
+          mem.innerHTML = cs
+            .map(
+              (k, j) =>
+                '<button class="mc" data-j="' +
+                j +
+                '"><div class="fr">?</div><div class="bk">' +
+                k[1] +
+                "</div></button>",
+            )
+            .join("");
+          mem.onclick = (e) => {
+            const el = e.target.closest(".mc");
+            if (!el || lock || el.classList.contains("f")) return;
+            el.classList.add("f");
+            open.push(el);
+            if (open.length < 2) return;
+            moves++;
+            const [p, q] = open.map((x) => cs[x.dataset.j][0]);
+            if (p === q) {
+              open.forEach((x) => x.classList.add("done"));
+              open = [];
+              if (++done === P.length)
+                document.getElementById("mv").textContent =
+                  "Well done. You finished in " + moves + " moves.";
+            } else {
+              lock = true;
+              setTimeout(() => {
+                open.forEach((x) => x.classList.remove("f"));
+                open = [];
+                lock = false;
+              }, 800);
+            }
+          };
+        }
+        game();
+        document.getElementById("rs").onclick = game;
+      })();
+    </script>
+    <script src="js/pwa.js"></script>
+  </body>
+</html>

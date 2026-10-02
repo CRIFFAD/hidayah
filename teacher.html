@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Teacher tools | Hidayah Islamic and Arabic School</title>
+    <link rel="icon" type="image/png" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#062b12" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="teacher">
+    <div id="site-header"></div>
+    <section class="pagehead">
+      <div class="wrap">
+        <h1>Teacher tools</h1>
+        <p>Set quizzes and follow your students' scores</p>
+      </div>
+    </section>
+    <section class="sec">
+      <div class="wrap dgrid" style="grid-template-columns: 1fr 1fr">
+        <div class="panel">
+          <h3>Create a quiz</h3>
+          <div id="msg" class="msg" role="alert"></div>
+          <form id="qf">
+            <div class="f">
+              <label for="ti">Quiz title</label><input id="ti" required />
+            </div>
+            <div class="row">
+              <div class="f">
+                <label for="su">Subject</label
+                ><select id="su">
+                  <option>Quran</option>
+                  <option>Arabic</option>
+                  <option>Islamic Studies</option>
+                  <option>Mathematics</option>
+                  <option>English</option>
+                  <option>Physics</option>
+                  <option>Chemistry</option>
+                  <option>Primary Science</option>
+                  <option>Social Studies</option>
+                </select>
+              </div>
+              <div class="f">
+                <label for="lvl">Class or level</label
+                ><input id="lvl" placeholder="Primary 4" />
+              </div>
+            </div>
+            <div id="qb"></div>
+            <button
+              class="btn b3"
+              type="button"
+              id="aq"
+              style="margin-bottom: 14px"
+            >
+              Add question</button
+            ><button class="btn b1 full" type="submit">Publish quiz</button>
+          </form>
+          <p class="alt">Select the round button beside the correct option.</p>
+        </div>
+        <div>
+          <div class="panel">
+            <h3>Student results</h3>
+            <div id="res"><p>Loading...</p></div>
+          </div>
+          <a class="btn b3 full" href="chat.html">Message your students</a>
+        </div>
+      </div>
+    </section>
+    <div id="site-footer"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      (async () => {
+        const c = await requireUser("teacher");
+        if (!c) return;
+        const g = (x) => document.getElementById(x);
+        let n = 0;
+        function addQ() {
+          n++;
+          const d = document.createElement("div");
+          d.className = "qblock";
+          d.innerHTML =
+            '<div class="f"><label>Question ' +
+            n +
+            '</label><input class="qt" required></div><div class="opgrid">' +
+            [0, 1, 2, 3]
+              .map(
+                (k) =>
+                  '<label class="oprow"><input type="radio" name="c' +
+                  n +
+                  '" value="' +
+                  k +
+                  '"' +
+                  (k ? "" : " checked") +
+                  '><input class="qo" placeholder="Option ' +
+                  "ABCD"[k] +
+                  '" required></label>',
+              )
+              .join("") +
+            "</div>";
+          g("qb").appendChild(d);
+        }
+        addQ();
+        addQ();
+        g("aq").onclick = addQ;
+        g("qf").onsubmit = async (e) => {
+          e.preventDefault();
+          const b = e.target.querySelector("[type=submit]");
+          b.disabled = true;
+          const qs = [...document.querySelectorAll(".qblock")].map((d) => ({
+            q: d.querySelector(".qt").value.trim(),
+            options: [...d.querySelectorAll(".qo")].map((o) => o.value.trim()),
+            answer: +d.querySelector("input[type=radio]:checked").value,
+          }));
+          const { error } = await sb.rpc("create_quiz", {
+            p_title: g("ti").value.trim(),
+            p_subject: g("su").value,
+            p_level: g("lvl").value.trim(),
+            p_qs: qs,
+          });
+          b.disabled = false;
+          const m = g("msg");
+          m.className = "msg " + (error ? "err" : "ok");
+          m.textContent = error
+            ? error.message
+            : "Quiz published. Students can play it now.";
+          if (!error) {
+            e.target.reset();
+            g("qb").innerHTML = "";
+            n = 0;
+            addQ();
+            addQ();
+            load();
+          }
+        };
+        async function load() {
+          const { data, error } = await sb
+            .from("quizzes")
+            .select(
+              "id,title,subject,q_count,attempts(score,total,created_at,profiles(full_name))",
+            )
+            .eq("teacher_id", c.user.id)
+            .order("created_at", { ascending: false });
+          if (error)
+            return (g("res").innerHTML = "<p>" + esc(error.message) + "</p>");
+          g("res").innerHTML = data.length
+            ? data
+                .map((q) => {
+                  const a = q.attempts || [],
+                    avg = a.length
+                      ? Math.round(
+                          a.reduce((s, r) => s + (r.score / r.total) * 100, 0) /
+                            a.length,
+                        )
+                      : 0;
+                  return (
+                    '<div style="margin-bottom:22px"><div class="enr"><b>' +
+                    esc(q.title) +
+                    ' <span class="tag">' +
+                    esc(q.subject) +
+                    '</span></b><button class="btn b3" style="padding:5px 14px" data-del="' +
+                    q.id +
+                    '">Delete</button></div><p style="color:var(--mut)">' +
+                    a.length +
+                    " attempts | class average " +
+                    avg +
+                    '%</p><div class="tw"><table class="t"><tr><th>Student</th><th>Score</th><th>Date</th></tr>' +
+                    (a.length
+                      ? a
+                          .map(
+                            (r) =>
+                              "<tr><td>" +
+                              esc(r.profiles && r.profiles.full_name) +
+                              "</td><td>" +
+                              r.score +
+                              "/" +
+                              r.total +
+                              " (" +
+                              Math.round((r.score / r.total) * 100) +
+                              "%)</td><td>" +
+                              new Date(r.created_at).toLocaleDateString() +
+                              "</td></tr>",
+                          )
+                          .join("")
+                      : '<tr><td colspan="3">No attempts yet</td></tr>') +
+                    "</table></div></div>"
+                  );
+                })
+                .join("")
+            : "<p>You have not created a quiz yet.</p>";
+        }
+        g("res").onclick = async (e) => {
+          const id = e.target.dataset.del;
+          if (id && confirm("Delete this quiz and its scores?")) {
+            await sb.from("quizzes").delete().eq("id", id);
+            load();
+          }
+        };
+        load();
+      })();
+    </script>
+    <script src="js/pwa.js"></script>
+  </body>
+</html>

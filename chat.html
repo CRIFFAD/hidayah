@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Chat | Hidayah Islamic and Arabic School</title>
+    <link rel="icon" type="image/png" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#062b12" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="chat">
+    <div id="site-header"></div>
+    <section class="pagehead" style="padding: 34px 0 26px">
+      <div class="wrap"><h1>Class chat</h1></div>
+    </section>
+    <section class="sec" style="padding: 24px 0">
+      <div class="wrap chat">
+        <div class="chs" id="chs"></div>
+        <div class="room">
+          <h3 id="rt"></h3>
+          <div class="msgs" id="ms"></div>
+          <form class="send" id="sf">
+            <input
+              id="bd"
+              maxlength="1000"
+              placeholder="Write a message"
+              autocomplete="off"
+            /><button class="btn b1" style="padding: 9px 22px">Send</button>
+          </form>
+        </div>
+      </div>
+    </section>
+    <div id="site-footer"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      (async () => {
+        const c = await requireUser();
+        if (!c) return;
+        const g = (x) => document.getElementById(x),
+          isT = c.profile.role === "teacher";
+        const CH = [
+          ["announcements", "Announcements"],
+          ["general", "General"],
+          ["quran", "Quran"],
+          ["arabic", "Arabic"],
+          ["maths-english", "Maths and English"],
+          ["science", "Science"],
+          ["ask-a-teacher", "Ask a teacher"],
+        ];
+        const { data: ps } = await sb
+            .from("profiles")
+            .select("id,full_name,role"),
+          pm = {};
+        (ps || []).forEach((p) => (pm[p.id] = p));
+        let ch = "general",
+          sub;
+        function row(m) {
+          const p = pm[m.sender_id] || { full_name: "Member" },
+            me = m.sender_id === c.user.id;
+          return (
+            '<div class="m ' +
+            (me ? "me" : "") +
+            '"><small>' +
+            esc(p.full_name) +
+            (p.role === "teacher" ? '<span class="tb">Teacher</span>' : "") +
+            " | " +
+            new Date(m.created_at).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }) +
+            "</small><p>" +
+            esc(m.body) +
+            "</p></div>"
+          );
+        }
+        function add(m) {
+          const ms = g("ms");
+          ms.insertAdjacentHTML("beforeend", row(m));
+          ms.scrollTop = ms.scrollHeight;
+        }
+        async function open(k) {
+          ch = k;
+          g("chs").innerHTML = CH.map(
+            ([i, n]) =>
+              '<button class="' +
+              (i === k ? "on" : "") +
+              '" data-c="' +
+              i +
+              '">' +
+              n +
+              "</button>",
+          ).join("");
+          g("rt").textContent = CH.find((x) => x[0] === k)[1];
+          const ro = k === "announcements" && !isT;
+          g("sf").style.display = ro ? "none" : "flex";
+          g("ms").innerHTML = "<p>Loading...</p>";
+          const { data } = await sb
+            .from("chat_messages")
+            .select("*")
+            .eq("channel", k)
+            .order("created_at", { ascending: false })
+            .limit(60);
+          g("ms").innerHTML = (data || []).length
+            ? data.reverse().map(row).join("")
+            : "<p>No messages yet. Say salaam.</p>";
+          g("ms").scrollTop = g("ms").scrollHeight;
+          if (sub) sb.removeChannel(sub);
+          sub = sb
+            .channel("room-" + k)
+            .on(
+              "postgres_changes",
+              {
+                event: "INSERT",
+                schema: "public",
+                table: "chat_messages",
+                filter: "channel=eq." + k,
+              },
+              (p) => {
+                if (p.new.sender_id !== c.user.id) {
+                  if (!g("ms").querySelector(".m")) g("ms").innerHTML = "";
+                  add(p.new);
+                }
+              },
+            )
+            .subscribe();
+        }
+        g("chs").onclick = (e) => {
+          if (e.target.dataset.c) open(e.target.dataset.c);
+        };
+        g("sf").onsubmit = async (e) => {
+          e.preventDefault();
+          const v = g("bd").value.trim();
+          if (!v) return;
+          g("bd").value = "";
+          const { data, error } = await sb
+            .from("chat_messages")
+            .insert({ channel: ch, sender_id: c.user.id, body: v })
+            .select()
+            .single();
+          if (error) {
+            g("bd").value = v;
+            return alert("Message not sent: " + error.message);
+          }
+          if (!g("ms").querySelector(".m")) g("ms").innerHTML = "";
+          add(data);
+        };
+        open("general");
+      })();
+    </script>
+    <script src="js/pwa.js"></script>
+  </body>
+</html>

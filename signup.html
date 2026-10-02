@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Sign up | Hidayah Islamic and Arabic School</title>
+    <meta
+      name="description"
+      content="Quran, Arabic and conventional subjects for children and adults."
+    />
+    <link rel="icon" type="image/png" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#062b12" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Hidayah" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="signup">
+    <div id="site-header"></div>
+    <main class="authwrap">
+      <div class="box">
+        <img class="lg" src="assets/logo.png" alt="Hidayah logo" />
+        <h1>Create your account</h1>
+        <p class="sub">Join Hidayah and start learning today.</p>
+        <div id="msg" class="msg" role="alert"></div>
+        <form id="signupForm">
+          <div class="f">
+            <label for="name">Full name</label
+            ><input id="name" name="name" required autocomplete="name" />
+          </div>
+          <div class="row">
+            <div class="f">
+              <label for="email">Email</label
+              ><input
+                id="email"
+                type="email"
+                name="email"
+                required
+                autocomplete="email"
+              />
+            </div>
+            <div class="f">
+              <label for="phone">Phone</label
+              ><input id="phone" type="tel" name="phone" autocomplete="tel" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="f">
+              <label for="role">I am a</label
+              ><select id="role" name="role">
+                <option>Student</option>
+                <option>Parent or guardian</option>
+                <option>Adult learner</option>
+              </select>
+            </div>
+            <div class="f">
+              <label for="programme">Interested in</label
+              ><select id="programme" name="programme">
+                <option>Quran and Islamic Studies</option>
+                <option>Arabic Language</option>
+                <option>Conventional Subjects</option>
+                <option>Primary School</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="f">
+              <label for="password">Password</label
+              ><input
+                id="password"
+                type="password"
+                name="password"
+                minlength="8"
+                required
+                autocomplete="new-password"
+              />
+            </div>
+            <div class="f">
+              <label for="confirm">Confirm password</label
+              ><input
+                id="confirm"
+                type="password"
+                name="confirm"
+                required
+                autocomplete="new-password"
+              />
+            </div>
+          </div>
+          <button class="btn b1 full" type="submit">Create account</button>
+        </form>
+        <p class="alt">Already registered? <a href="login.html">Log in</a></p>
+      </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/pwa.js"></script>
+  </body>
+</html>

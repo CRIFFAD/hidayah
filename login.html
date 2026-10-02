@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Log in | Hidayah Islamic and Arabic School</title>
+    <meta
+      name="description"
+      content="Quran, Arabic and conventional subjects for children and adults."
+    />
+    <link rel="icon" type="image/png" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#062b12" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Hidayah" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="login">
+    <div id="site-header"></div>
+    <main class="authwrap">
+      <div class="box">
+        <img class="lg" src="assets/logo.png" alt="Hidayah logo" />
+        <h1>Welcome back</h1>
+        <p class="sub">Log in to continue learning.</p>
+        <div id="msg" class="msg" role="alert"></div>
+        <form id="loginForm">
+          <div class="f">
+            <label for="email">Email</label
+            ><input
+              id="email"
+              type="email"
+              name="email"
+              required
+              autocomplete="email"
+            />
+          </div>
+          <div class="f">
+            <label for="password">Password</label
+            ><input
+              id="password"
+              type="password"
+              name="password"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+          <p style="text-align: right; margin: -6px 0 14px">
+            <a id="forgot" href="#" style="font-weight: 800; color: var(--g5)"
+              >Forgot password?</a
+            >
+          </p>
+          <button class="btn b1 full" type="submit">Log in</button>
+        </form>
+        <p class="alt">New here? <a href="signup.html">Create an account</a></p>
+      </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/pwa.js"></script>
+  </body>
+</html>

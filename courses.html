@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Courses | Hidayah Islamic and Arabic School</title>
+<meta name="description" content="Quran, Arabic and conventional subjects for children and adults.">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#062b12">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hidayah">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="courses">
+
+<div id="site-header"></div>
+
+<section class="pagehead">
+  <div class="wrap">
+    <h1>Our courses</h1>
+    <p>Religious and conventional subjects under one roof</p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="tabs" id="tabs" role="tablist" aria-label="Course categories"></div>
+    <div class="grid" id="list" aria-live="polite"></div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/main.js"></script>
+<script>
+window.renderPage = function () {
+  var tabs = document.getElementById("tabs");
+  var list = document.getElementById("list");
+  var allowed = ["all"].concat(Object.keys(CATS));
+  var cur = new URLSearchParams(location.search).get("cat");
+  if (allowed.indexOf(cur) === -1) cur = "all";
+
+  function draw() {
+    // Category buttons
+    tabs.innerHTML = [["all", "All courses"]].concat(Object.entries(CATS)).map(function (p) {
+      return '<button type="button" role="tab" class="tab' + (p[0] === cur ? " on" : "") +
+             '" aria-selected="' + (p[0] === cur) + '" data-k="' + p[0] + '">' + p[1] + "</button>";
+    }).join("");
+
+    // Course cards (added with "show" so they are visible straight away)
+    var items = COURSES.filter(function (c) { return cur === "all" || c.cat === cur; });
+    list.innerHTML = items.length
+      ? items.map(function (c) {
+          return courseCard(c).replace('class="card rv"', 'class="card rv show"');
+        }).join("")
+      : "<p>No courses in this category yet.</p>";
+  }
+
+  tabs.addEventListener("click", function (e) {
+    var b = e.target.closest(".tab");
+    if (!b) return;
+    cur = b.dataset.k;
+    try { history.replaceState(null, "", "courses.html" + (cur === "all" ? "" : "?cat=" + cur)); } catch (err) {}
+    draw();
+  });
+
+  draw();
+};
+</script>
+<script src="js/pwa.js"></script>
+</body>
+</html>

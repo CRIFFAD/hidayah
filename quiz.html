@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Quiz | Hidayah Islamic and Arabic School</title>
+    <link rel="icon" type="image/png" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#062b12" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="quiz">
+    <div id="site-header"></div>
+    <section class="sec pat">
+      <div class="wrap">
+        <div
+          class="box"
+          id="qbox"
+          style="width: min(720px, 100%); margin: auto"
+        >
+          <p class="sub">Loading...</p>
+        </div>
+      </div>
+    </section>
+    <div id="site-footer"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      (async () => {
+        const c = await requireUser();
+        if (!c) return;
+        const id = new URLSearchParams(location.search).get("id"),
+          box = document.getElementById("qbox"),
+          g = (x) => document.getElementById(x);
+        const { data: z } = await sb
+          .from("quizzes")
+          .select("title,subject,questions(id,position,text,options)")
+          .eq("id", id)
+          .maybeSingle();
+        if (!z || !z.questions.length) {
+          box.innerHTML =
+            '<h1>Quiz not found</h1><p class="alt"><a href="learn.html">Back to quizzes</a></p>';
+          return;
+        }
+        const qs = z.questions.sort((a, b) => a.position - b.position),
+          ans = [],
+          T = 25;
+        let i = 0,
+          t,
+          left,
+          lock;
+        box.innerHTML =
+          "<h1>" +
+          esc(z.title) +
+          '</h1><p class="sub">' +
+          esc(z.subject) +
+          " | " +
+          qs.length +
+          " questions | " +
+          T +
+          ' seconds each</p><button class="btn b1 full" id="go">Start quiz</button>';
+        g("go").onclick = show;
+        function show() {
+          clearInterval(t);
+          if (i >= qs.length) return finish();
+          const q = qs[i];
+          left = T;
+          lock = false;
+          box.innerHTML =
+            '<div class="qtop"><span>Question ' +
+            (i + 1) +
+            " of " +
+            qs.length +
+            '</span><b id="tm">' +
+            T +
+            '</b></div><div class="tbar"><i id="tb"></i></div><h2 class="qtext">' +
+            esc(q.text) +
+            '</h2><div class="opts">' +
+            q.options
+              .map(
+                (o, k) =>
+                  '<button class="opt" data-k="' +
+                  k +
+                  '">' +
+                  esc(o) +
+                  "</button>",
+              )
+              .join("") +
+            "</div>";
+          requestAnimationFrame(() => {
+            g("tb").style.transitionDuration = T + "s";
+            g("tb").style.width = "0";
+          });
+          t = setInterval(() => {
+            g("tm").textContent = --left;
+            if (left <= 0) pick(-1);
+          }, 1000);
+          box.querySelector(".opts").onclick = (e) => {
+            const b = e.target.closest(".opt");
+            if (b && !lock) {
+              b.classList.add("sel");
+              pick(+b.dataset.k);
+            }
+          };
+        }
+        function pick(k) {
+          if (lock) return;
+          lock = true;
+          clearInterval(t);
+          ans[i] = k;
+          i++;
+          setTimeout(show, 350);
+        }
+        async function finish() {
+          box.innerHTML = '<p class="sub">Marking your answers...</p>';
+          const { data, error } = await sb.rpc("submit_attempt", {
+            p_quiz: id,
+            p_answers: ans,
+          });
+          if (error) {
+            box.innerHTML =
+              '<h1>Could not save your score</h1><p class="sub">' +
+              esc(error.message) +
+              "</p>";
+            return;
+          }
+          const pct = Math.round((data.score / data.total) * 100);
+          box.innerHTML =
+            "<h1>" +
+            (pct >= 80
+              ? "Excellent work"
+              : pct >= 50
+                ? "Good effort"
+                : "Keep practising") +
+            '</h1><div class="score">' +
+            data.score +
+            "<small>/" +
+            data.total +
+            '</small></div><p class="sub">' +
+            (data.xp
+              ? "You earned " + data.xp + " XP."
+              : "Retake: no extra XP, but great practice.") +
+            '</p><div class="rev">' +
+            qs
+              .map((q, n) => {
+                const ok = ans[n] === data.correct[n];
+                return (
+                  '<div class="rv1 ' +
+                  (ok ? "ok" : "no") +
+                  '"><b>' +
+                  (n + 1) +
+                  ". " +
+                  esc(q.text) +
+                  "</b><br>Correct answer: " +
+                  esc(q.options[data.correct[n]]) +
+                  (ok
+                    ? ""
+                    : "<br>Your answer: " +
+                      (ans[n] >= 0 ? esc(q.options[ans[n]]) : "No answer")) +
+                  "</div>"
+                );
+              })
+              .join("") +
+            '</div><a class="btn b1 full" href="learn.html">Back to quizzes</a>';
+        }
+      })();
+    </script>
+    <script src="js/pwa.js"></script>
+  </body>
+</html>

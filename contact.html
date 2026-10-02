@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Contact | Hidayah Islamic and Arabic School</title>
+    <meta
+      name="description"
+      content="Quran, Arabic and conventional subjects for children and adults."
+    />
+    <link rel="icon" type="image/png" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#062b12" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Hidayah" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="contact">
+    <div id="site-header"></div>
+    <section class="pagehead">
+      <div class="wrap">
+        <h1>Contact us</h1>
+        <p>Questions about admission or classes? Write to us.</p>
+      </div>
+    </section>
+    <section class="sec">
+      <div class="wrap split">
+        <div class="rv">
+          <div class="head" style="margin: 0 0 14px">
+            <h2>Visit or call</h2>
+          </div>
+          <ul class="list">
+            <li>info@hidayah.example</li>
+            <li>+234 000 000 0000</li>
+            <li>Lagos, Nigeria</li>
+            <li>Classes run Monday to Saturday</li>
+          </ul>
+        </div>
+        <div class="panel rv">
+          <div id="msg" class="msg" role="alert"></div>
+          <form id="cf">
+            <div class="f">
+              <label for="n">Your name</label><input id="n" required />
+            </div>
+            <div class="f">
+              <label for="e">Email</label><input id="e" type="email" required />
+            </div>
+            <div class="f">
+              <label for="m">Message</label
+              ><textarea id="m" rows="5" required></textarea>
+            </div>
+            <button class="btn b1 full" type="submit">Send message</button>
+          </form>
+        </div>
+      </div>
+    </section>
+    <div id="site-footer"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+      const cf = document.getElementById("cf"),
+        mg = document.getElementById("msg");
+      cf.onsubmit = async (e) => {
+        e.preventDefault();
+        const b = cf.querySelector("button");
+        b.disabled = true;
+        const { error } = await DB.sendMessage({
+          name: document.getElementById("n").value,
+          email: document.getElementById("e").value,
+          message: document.getElementById("m").value,
+        });
+        b.disabled = false;
+        mg.className = "msg " + (error ? "err" : "ok");
+        mg.textContent = error
+          ? "Message not sent. Please try again."
+          : "Message sent. We will reply soon.";
+        if (!error) cf.reset();
+      };
+    </script>
+    <script src="js/pwa.js"></script>
+  </body>
+</html>

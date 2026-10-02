@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Home | Hidayah Islamic and Arabic School</title>
+    <meta
+      name="description"
+      content="Quran, Arabic and conventional subjects for children and adults."
+    />
+    <link rel="icon" type="image/png" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#062b12" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Hidayah" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="index">
+    <div id="site-header"></div>
+    <section class="hero">
+      <div class="stars"></div>
+      <div class="wrap">
+        <div>
+          <p class="ar in">بسم الله الرحمن الرحيم</p>
+          <h1 class="in">Learn the Quran. Master Arabic. Excel in school.</h1>
+          <p class="in">
+            Hidayah teaches Quran recitation, Islamic studies and the Arabic
+            language alongside Mathematics, English, Physics, Chemistry and the
+            full primary curriculum.
+          </p>
+          <div class="cta in">
+            <a class="btn b1" href="signup.html">Create free account</a
+            ><a class="btn b2" href="courses.html">Browse courses</a>
+          </div>
+        </div>
+        <div class="emblem">
+          <div class="ring"></div>
+          <div class="ring r2"></div>
+          <img
+            src="assets/logo.png"
+            alt="Hidayah Islamic and Arabic School logo"
+          />
+        </div>
+      </div>
+    </section>
+    <div class="wrap">
+      <div class="stats">
+        <div class="stat">
+          <b data-n="1200" data-s="+">0</b><span>Students taught</span>
+        </div>
+        <div class="stat"><b data-n="16">0</b><span>Courses offered</span></div>
+        <div class="stat">
+          <b data-n="35">0</b><span>Qualified teachers</span>
+        </div>
+        <div class="stat">
+          <b data-n="12">0</b><span>Years of service</span>
+        </div>
+      </div>
+    </div>
+    <section class="sec">
+      <div class="wrap">
+        <div class="head c rv">
+          <h2>Four paths, one school</h2>
+          <p>
+            Faith and knowledge grow together. Choose a path, or study across
+            all four.
+          </p>
+        </div>
+        <div class="grid" id="paths"></div>
+      </div>
+    </section>
+    <section class="sec dark pat">
+      <div class="wrap split">
+        <div class="frame rv">
+          اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ<small
+            >Read in the name of your Lord who created. (Quran 96:1)</small
+          >
+        </div>
+        <div class="rv">
+          <div class="head" style="margin: 0">
+            <h2>Why families choose Hidayah</h2>
+          </div>
+          <ul class="list">
+            <li>Certified Quran teachers with ijazah in recitation</li>
+            <li>Small classes so every child is heard</li>
+            <li>Islamic character woven into every subject</li>
+            <li>Weekly progress reports for parents</li>
+            <li>Online and in-person learning</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <section class="sec">
+      <div class="wrap">
+        <div class="head rv">
+          <h2>Popular courses</h2>
+          <p>Start with one course today and add more any time.</p>
+        </div>
+        <div class="grid" id="pop"></div>
+        <p style="margin-top: 34px; text-align: center">
+          <a class="btn b3" href="courses.html">See all courses</a>
+        </p>
+      </div>
+    </section>
+    <section class="sec dark pat cta-band">
+      <div class="wrap rv">
+        <h2>Begin your journey with Hidayah</h2>
+        <p>Create an account in a minute and enrol in your first class.</p>
+        <a class="btn b1" href="signup.html">Create free account</a>
+      </div>
+    </section>
+    <div id="site-footer"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+      window.renderPage = () => {
+        document.getElementById("paths").innerHTML = Object.entries(CATS)
+          .map(
+            ([k, v], i) =>
+              '<a class="card rv" href="courses.html?cat=' +
+              k +
+              '"><div class="glyph">' +
+              ["ق", "ع", "+", "Ab"][i] +
+              "</div><h3>" +
+              v +
+              "</h3><p>" +
+              COURSES.filter((c) => c.cat === k).length +
+              " courses. " +
+              [
+                "Recite, memorise and understand.",
+                "Read, write and speak fluently.",
+                "Maths, English, Physics and Chemistry.",
+                "A strong start from nursery to Primary 6.",
+              ][i] +
+              "</p></a>",
+          )
+          .join("");
+        document.getElementById("pop").innerHTML = [
+          "tajweed",
+          "arabic-rw",
+          "math",
+          "english",
+        ]
+          .map((id) => courseCard(COURSES.find((c) => c.id === id)))
+          .join("");
+      };
+    </script>
+    <script src="js/pwa.js"></script>
+  </body>
+</html>

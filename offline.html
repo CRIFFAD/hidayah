@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Offline | Hidayah</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        background: #062b12;
+        color: #f3d77a;
+        font-family: Georgia, serif;
+        padding: 24px;
+      }
+      img {
+        width: 120px;
+        border-radius: 50%;
+        margin: 0 auto 18px;
+      }
+      p {
+        color: #dfe8d7;
+        font-family: system-ui, sans-serif;
+      }
+      button {
+        padding: 12px 28px;
+        border-radius: 50px;
+        border: 2px solid #d9ac2c;
+        background: #d9ac2c;
+        color: #062b12;
+        font-weight: 800;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <img src="assets/logo.png" alt="Hidayah logo" />
+      <h1>You are offline</h1>
+      <p>
+        Check your internet connection. Pages you have visited before will still
+        open.
+      </p>
+      <button onclick="location.reload()">Try again</button>
+    </div>
+  </body>
+</html>

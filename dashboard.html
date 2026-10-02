@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Dashboard | Hidayah Islamic and Arabic School</title>
+    <meta
+      name="description"
+      content="Quran, Arabic and conventional subjects for children and adults."
+    />
+    <link rel="icon" type="image/png" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#062b12" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Hidayah" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="dashboard">
+    <div id="site-header"></div>
+    <section class="pagehead">
+      <div class="wrap">
+        <h1 id="hi">Assalamu alaikum</h1>
+        <p>Your learning space</p>
+      </div>
+    </section>
+    <section class="sec">
+      <div class="wrap dgrid">
+        <div>
+          <div class="panel">
+            <h3>My profile</h3>
+            <p id="prof">Loading...</p>
+          </div>
+          <div class="panel">
+            <h3>Learn</h3>
+            <a class="btn b1 full" href="learn.html" style="margin-bottom: 10px"
+              >Quizzes and games</a
+            ><a class="btn b3 full" href="chat.html" style="margin-bottom: 10px"
+              >Class chat</a
+            ><a
+              class="btn b3 full"
+              id="tl"
+              href="teacher.html"
+              style="display: none"
+              >Teacher tools</a
+            >
+          </div>
+          <button class="btn b3 full" id="out">Log out</button>
+        </div>
+        <div>
+          <div class="panel">
+            <h3>My courses</h3>
+            <div id="enr"><p>Loading...</p></div>
+          </div>
+          <a class="btn b1" href="courses.html">Enrol in a course</a>
+        </div>
+      </div>
+    </section>
+    <div id="site-footer"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+      (async () => {
+        const u = await Auth.user();
+        if (!u) {
+          location.href = "login.html";
+          return;
+        }
+        const m = u.user_metadata || {};
+        document.getElementById("hi").textContent =
+          "Assalamu alaikum, " + (m.full_name || "student");
+        document.getElementById("prof").innerHTML =
+          "<b>" +
+          (m.full_name || "") +
+          "</b><br>" +
+          u.email +
+          "<br>" +
+          (m.role || "") +
+          (m.programme ? " | " + m.programme : "");
+        document.getElementById("out").onclick = async () => {
+          await Auth.signOut();
+          location.href = "index.html";
+        };
+        const { data, error } = await DB.myEnrollments(u.id),
+          el = document.getElementById("enr");
+        if (error)
+          el.innerHTML =
+            "<p>Could not load courses. Check that the database tables are created.</p>";
+        else if (!data.length)
+          el.innerHTML =
+            "<p>You have not enrolled in any course yet. Choose one to begin.</p>";
+        else {
+          el.innerHTML = data
+            .map(
+              (r) =>
+                '<div class="enr"><b>' +
+                r.course_title +
+                '</b><div class="bar"><i data-p="' +
+                (r.progress || 0) +
+                '"></i></div></div>',
+            )
+            .join("");
+          setTimeout(
+            () =>
+              el
+                .querySelectorAll("i")
+                .forEach((i) => (i.style.width = i.dataset.p + "%")),
+            100,
+          );
+        }
+      })();
+    </script>
+    <script>
+      Auth.user().then(async (u) => {
+        if (!u) return;
+        const { data } = await sb
+          .from("profiles")
+          .select("role")
+          .eq("id", u.id)
+          .maybeSingle();
+        if (data && data.role === "teacher")
+          document.getElementById("tl").style.display = "block";
+      });
+    </script>
+    <script src="js/pwa.js"></script>
+  </body>
+</html>
