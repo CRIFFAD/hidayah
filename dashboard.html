@@ -1,135 +1,124 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Dashboard | Hidayah Islamic and Arabic School</title>
-    <meta
-      name="description"
-      content="Quran, Arabic and conventional subjects for children and adults."
-    />
-    <link rel="icon" type="image/png" href="icons/icon-192.png" />
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
-    <link rel="manifest" href="manifest.webmanifest" />
-    <meta name="theme-color" content="#062b12" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="Hidayah" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="css/style.css" />
-  </head>
-  <body data-page="dashboard">
-    <div id="site-header"></div>
-    <section class="pagehead">
-      <div class="wrap">
-        <h1 id="hi">Assalamu alaikum</h1>
-        <p>Your learning space</p>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard | Hidayah Islamic and Arabic School</title>
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#062b12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="dashboard">
+
+<div id="site-header"></div>
+
+<section class="pagehead">
+  <div class="wrap">
+    <h1 id="hi">Assalamu alaikum</h1>
+    <p id="sub">Your learning space</p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap dgrid">
+    <div>
+      <div class="panel"><h3>My profile</h3><p id="prof">Loading...</p></div>
+      <div class="panel">
+        <h3>Learn</h3>
+        <a class="btn b1 full" id="mainLink" href="learn.html" style="margin-bottom:10px">Quizzes and games</a>
+        <a class="btn b3 full" href="chat.html">Class chat</a>
       </div>
-    </section>
-    <section class="sec">
-      <div class="wrap dgrid">
-        <div>
-          <div class="panel">
-            <h3>My profile</h3>
-            <p id="prof">Loading...</p>
-          </div>
-          <div class="panel">
-            <h3>Learn</h3>
-            <a class="btn b1 full" href="learn.html" style="margin-bottom: 10px"
-              >Quizzes and games</a
-            ><a class="btn b3 full" href="chat.html" style="margin-bottom: 10px"
-              >Class chat</a
-            ><a
-              class="btn b3 full"
-              id="tl"
-              href="teacher.html"
-              style="display: none"
-              >Teacher tools</a
-            >
-          </div>
-          <button class="btn b3 full" id="out">Log out</button>
-        </div>
-        <div>
-          <div class="panel">
-            <h3>My courses</h3>
-            <div id="enr"><p>Loading...</p></div>
-          </div>
-          <a class="btn b1" href="courses.html">Enrol in a course</a>
-        </div>
+      <button class="btn b3 full" id="out">Log out</button>
+    </div>
+
+    <div>
+      <!-- Student view -->
+      <div class="panel" id="stPanel"><h3>My courses</h3><div id="enr"><p>Loading...</p></div></div>
+      <a class="btn b1" id="enrolBtn" href="courses.html">Enrol in a course</a>
+
+      <!-- Teacher view -->
+      <div class="panel" id="tPanel" style="display:none">
+        <h3>Teaching</h3>
+        <p id="tinfo">Loading...</p>
+        <a class="btn b1" href="teacher.html" style="margin-top:14px">Set a quiz</a>
       </div>
-    </section>
-    <div id="site-footer"></div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase.js"></script>
-    <script src="js/main.js"></script>
-    <script>
-      (async () => {
-        const u = await Auth.user();
-        if (!u) {
-          location.href = "login.html";
-          return;
-        }
-        const m = u.user_metadata || {};
-        document.getElementById("hi").textContent =
-          "Assalamu alaikum, " + (m.full_name || "student");
-        document.getElementById("prof").innerHTML =
-          "<b>" +
-          (m.full_name || "") +
-          "</b><br>" +
-          u.email +
-          "<br>" +
-          (m.role || "") +
-          (m.programme ? " | " + m.programme : "");
-        document.getElementById("out").onclick = async () => {
-          await Auth.signOut();
-          location.href = "index.html";
-        };
-        const { data, error } = await DB.myEnrollments(u.id),
-          el = document.getElementById("enr");
-        if (error)
-          el.innerHTML =
-            "<p>Could not load courses. Check that the database tables are created.</p>";
-        else if (!data.length)
-          el.innerHTML =
-            "<p>You have not enrolled in any course yet. Choose one to begin.</p>";
-        else {
-          el.innerHTML = data
-            .map(
-              (r) =>
-                '<div class="enr"><b>' +
-                r.course_title +
-                '</b><div class="bar"><i data-p="' +
-                (r.progress || 0) +
-                '"></i></div></div>',
-            )
-            .join("");
-          setTimeout(
-            () =>
-              el
-                .querySelectorAll("i")
-                .forEach((i) => (i.style.width = i.dataset.p + "%")),
-            100,
-          );
-        }
-      })();
-    </script>
-    <script>
-      Auth.user().then(async (u) => {
-        if (!u) return;
-        const { data } = await sb
-          .from("profiles")
-          .select("role")
-          .eq("id", u.id)
-          .maybeSingle();
-        if (data && data.role === "teacher")
-          document.getElementById("tl").style.display = "block";
-      });
-    </script>
-    <script src="js/pwa.js"></script>
-  </body>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/main.js"></script>
+<script>
+(async function () {
+  var g = function (id) { return document.getElementById(id); };
+  var esc = function (s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  };
+
+  var u = await Auth.user();
+  if (!u) { location.href = "login.html"; return; }
+
+  g("out").onclick = async function () { await Auth.signOut(); location.href = "index.html"; };
+
+  // The role comes from the database, not from the sign-up form
+  var res = await sb.from("profiles").select("full_name,role").eq("id", u.id).maybeSingle();
+  var p = res.data, m = u.user_metadata || {};
+  var teacher = !!p && p.role === "teacher";
+  var name = (p && p.full_name) || m.full_name || "";
+
+  g("hi").textContent = "Assalamu alaikum, " + (name || (teacher ? "teacher" : "student"));
+  g("sub").textContent = teacher ? "Your teaching space" : "Your learning space";
+
+  var roleLine = teacher ? "Teacher" : ((m.role || "Student") + (m.programme ? " | " + m.programme : ""));
+  var pr = g("prof");
+  pr.textContent = "";
+  var b = document.createElement("b");
+  b.textContent = name;
+  pr.append(b, document.createElement("br"), u.email, document.createElement("br"), roleLine);
+
+  if (teacher) {
+    // Teachers do not take quizzes or enrol in courses
+    g("stPanel").style.display = "none";
+    g("enrolBtn").style.display = "none";
+    g("tPanel").style.display = "block";
+    g("mainLink").href = "teacher.html";
+    g("mainLink").textContent = "Teacher tools";
+
+    var q = await sb.from("quizzes").select("id,attempts(id)").eq("teacher_id", u.id);
+    var list = q.data || [];
+    var tries = list.reduce(function (s, x) { return s + (x.attempts || []).length; }, 0);
+    g("tinfo").textContent = list.length
+      ? "You have set " + list.length + (list.length === 1 ? " quiz" : " quizzes") + " with " + tries + (tries === 1 ? " student attempt" : " student attempts") + " so far."
+      : "You have not set a quiz yet. Create your first one and your students can play it straight away.";
+    return;
+  }
+
+  // Student: show enrolled courses
+  var r = await DB.myEnrollments(u.id), el = g("enr");
+  if (r.error) {
+    el.innerHTML = "<p>Could not load courses. Check that the database tables are created.</p>";
+  } else if (!r.data.length) {
+    el.innerHTML = "<p>You have not enrolled in any course yet. Choose one to begin.</p>";
+  } else {
+    el.innerHTML = r.data.map(function (x) {
+      return '<div class="enr"><b>' + esc(x.course_title) + '</b><div class="bar"><i data-p="' + (x.progress || 0) + '"></i></div></div>';
+    }).join("");
+    setTimeout(function () {
+      el.querySelectorAll("i").forEach(function (i) { i.style.width = i.dataset.p + "%"; });
+    }, 100);
+  }
+})();
+</script>
+<script src="js/pwa.js"></script>
+</body>
 </html>

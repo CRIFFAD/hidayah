@@ -143,14 +143,7 @@
             load();
           }
         };
-        async function load() {
-          const { data, error } = await sb
-            .from("quizzes")
-            .select(
-              "id,title,subject,q_count,attempts(score,total,created_at,profiles(full_name))",
-            )
-            .eq("teacher_id", c.user.id)
-            .order("created_at", { ascending: false });
+        async function load(){const {data,error}=await sb.from("quizzes").select("id,teacher_id,title,subject,q_count,attempts(score,total,created_at,profiles(full_name))").or("teacher_id.eq."+c.user.id+",teacher_id.is.null").order("created_at",{ascending:false});
           if (error)
             return (g("res").innerHTML = "<p>" + esc(error.message) + "</p>");
           g("res").innerHTML = data.length
@@ -168,9 +161,7 @@
                     esc(q.title) +
                     ' <span class="tag">' +
                     esc(q.subject) +
-                    '</span></b><button class="btn b3" style="padding:5px 14px" data-del="' +
-                    q.id +
-                    '">Delete</button></div><p style="color:var(--mut)">' +
+                    '</span></b>'+(q.teacher_id?'<button class="btn b3" style="padding:5px 14px" data-del="'+q.id+'">Delete</button>':'<span class="tag">Course quiz</span>')+'</div><p style="color:var(--mut)">' +
                     a.length +
                     " attempts | class average " +
                     avg +

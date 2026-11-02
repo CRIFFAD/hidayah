@@ -111,21 +111,21 @@ const COURSES = [
     d: "Plants, animals, the human body, weather and healthy living.",
     l: "Primary 3 to 6",
   },
+  // {
+  //   id: "social",
+  //   cat: "primary",
+  //   g: "So",
+  //   t: "Social Studies and Civic Education",
+  //   d: "Family, community, citizenship, our country and good values.",
+  //   l: "Primary 3 to 6",
+  // },
   {
-    id: "social",
-    cat: "primary",
-    g: "So",
-    t: "Social Studies and Civic Education",
-    d: "Family, community, citizenship, our country and good values.",
-    l: "Primary 3 to 6",
-  },
-  {
-    id: "verbal",
+    id: "Terminal",
     cat: "primary",
     g: "Q",
-    t: "Verbal and Quantitative Reasoning",
-    d: "Puzzles and practice for common entrance exams.",
-    l: "Primary 4 to 6",
+    t: "Terminal Exam Preparation",
+    d: "Accounting, Finance and so on...",
+    l: "All LevelsS",
   },
 ];
 const CATS = {
@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
     f.outerHTML = `<footer><div class="wrap"><div class="fg"><div><h4>Hidayah Islamic and Arabic School</h4><p>Guiding children and adults to the Quran, the Arabic language and sound academic knowledge.</p></div>
   <div><h4>Explore</h4><ul><li><a href="about.html">About us</a></li><li><a href="courses.html">Courses</a></li><li><a href="contact.html">Contact</a></li></ul></div>
   <div><h4>Students</h4><ul><li><a href="signup.html">Create account</a></li><li><a href="login.html">Log in</a></li><li><a href="dashboard.html">My dashboard</a></li></ul></div>
-  <div><h4>Contact</h4><ul><li>hidaayatulislamiyyah@gmail.com</li><li>+234 814 252 6798</li><li>Lagos, Nigeria</li></ul></div></div>
+  <div><h4>Contact</h4><ul><li>hidaayatulislamiyyah@gmail.com</li><li>+234 814 252 6798 <br> +234 701 149 7819</li><li>Lagos, Nigeria</li></ul></div></div>
   <p class="copy">&copy; ${new Date().getFullYear()} Hidayah Islamic and Arabic School. All rights reserved.</p></div></footer>`;
   const b = document.querySelector(".burger"),
     l = document.querySelector(".links");
@@ -236,4 +236,36 @@ document.addEventListener("DOMContentLoaded", () => {
       : "Enrolled";
     e.target.disabled = !error || dup;
   });
+});
+
+
+
+document.addEventListener("DOMContentLoaded", async function () {
+  try {
+    if (typeof Auth === "undefined" || typeof sb === "undefined" || !sb) return;
+    var u = await Auth.user();
+    if (!u) return;
+    var ul = document.querySelector(".links");
+    if (!ul) return;
+
+    var r = await sb.from("profiles").select("role").eq("id", u.id).maybeSingle();
+    var teacher = r.data && r.data.role === "teacher";
+
+    var quizLink = ul.querySelector('a[href="learn.html"]');
+    if (quizLink && teacher) { quizLink.href = "teacher.html"; quizLink.textContent = "Teacher tools"; }
+
+    var login = ul.querySelector('a[href="login.html"]');
+    if (login) { login.href = "dashboard.html"; login.textContent = "Dashboard"; }
+
+    var cta = ul.querySelector("a.btn");
+    if (cta) {
+      cta.href = "#";
+      cta.textContent = "Log out";
+      cta.onclick = async function (e) {
+        e.preventDefault();
+        await Auth.signOut();
+        location.href = "index.html";
+      };
+    }
+  } catch (e) {}
 });

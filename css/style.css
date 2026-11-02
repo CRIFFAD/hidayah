@@ -1159,3 +1159,125 @@ table.t {
     white-space: nowrap;
   }
 }
+
+
+/* ---------- Mobile fixes: stop sideways shifting ---------- */
+
+/* Chat: let grid children shrink instead of stretching the page */
+.chat > * { min-width: 0; }
+.msgs, .m p { min-width: 0; overflow-wrap: anywhere; }
+
+@media (max-width: 760px) {
+  .chat {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    height: calc(100vh - 200px);
+    height: calc(100dvh - 200px);
+    gap: 12px;
+  }
+  .chs {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chs button {
+    flex: none;
+    width: auto;
+    white-space: nowrap;
+    padding: 8px 16px;
+    border-radius: 30px;
+  }
+}
+
+/* Quiz: no sliding on hover or tap, and no height jumps */
+.opts { min-width: 0; }
+.opt {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .2s, border-color .2s, color .2s;
+}
+.opt:hover { transform: none; background: #fbf3d6; }
+.opt.sel,
+.opt.sel:hover { background: var(--g8); color: var(--gold2); border-color: var(--gold); }
+#qbox { min-height: 460px; }
+
+
+/* ---------- Arabic letter match: stable grid and flip ---------- */
+.mem {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  max-width: 400px;
+  margin: 14px auto;
+}
+
+.mc {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  aspect-ratio: auto;           /* replaced by the ::before height below */
+  cursor: pointer;
+  perspective: 600px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* gives every card a fixed square shape that never changes */
+.mc::before {
+  content: "";
+  display: block;
+  padding-top: 100%;
+}
+
+.mc div {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform .5s;
+  overflow: hidden;
+}
+
+.mc .fr { font-size: clamp(1.1rem, 5vw, 1.6rem); }
+.mc .bk { font-size: clamp(1rem, 4.6vw, 1.5rem); line-height: 1; padding: 2px; }
+
+.mc.f .fr { transform: rotateY(180deg); }
+.mc.f .bk { transform: rotateY(0deg); }
+
+@media (max-width: 380px) {
+  .mem { gap: 7px; }
+}
+
+
+.f input, .f select, .f textarea,
+.oprow .qo, .send input {
+  background-color: #0a3d1a;
+  color: #f3d77a;
+  -webkit-text-fill-color: #f3d77a;
+  border-color: #d9ac2c;
+}
+::placeholder { color: #c9b66a; opacity: 1; }
+select option { background: #0a3d1a; color: #f3d77a; }
+select option:checked { background: #d9ac2c; color: #062b12; }
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f3d77a;
+  -webkit-box-shadow: 0 0 0 1000px #0a3d1a inset;
+}
