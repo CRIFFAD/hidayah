@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin | Hidayah Islamic and Arabic School</title>
+<style>
+  :root { --green:#062b12; --green2:#0b3a19; --gold:#d9a92b; --cream:#fdf6e3; --ink:#0b3a19; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Nunito',system-ui,sans-serif; background:var(--green); color:var(--cream); }
+  main { max-width:1100px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-family:Georgia,serif; margin:0 0 4px; color:var(--gold); }
+  .sub { margin:0 0 20px; opacity:.8; }
+  .bar { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
+  input, select, button { font:inherit; padding:10px 12px; border-radius:10px; border:2px solid var(--gold);
+    background:var(--green2); color:var(--cream); }
+  input { flex:1; min-width:200px; }
+  button { background:var(--gold); color:var(--green); font-weight:700; cursor:pointer; }
+  :focus-visible { outline:3px solid var(--cream); outline-offset:2px; }
+  .wrap { overflow-x:auto; border:2px solid var(--gold); border-radius:12px; background:var(--cream); }
+  table { width:100%; border-collapse:collapse; color:var(--ink); min-width:720px; }
+  th, td { text-align:left; padding:12px 14px; border-bottom:1px solid #e7d9a8; white-space:nowrap; }
+  th { background:var(--gold); color:var(--green); position:sticky; top:0; }
+  tr:last-child td { border-bottom:0; }
+  #msg { padding:16px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Registered users</h1>
+  <p class="sub" id="count">Loading…</p>
+
+  <div class="bar">
+    <input id="q" type="search" placeholder="Search name, email or phone">
+    <select id="roleFilter"><option value="">All roles</option></select>
+    <select id="interestFilter"><option value="">All interests</option></select>
+    <button id="csv" type="button">Download CSV</button>
+  </div>
+
+  <div class="wrap">
+    <table>
+      <thead>
+        <tr><th>Full name</th><th>Email</th><th>Phone</th><th>Role</th><th>Interested in</th><th>Joined</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div id="msg" hidden></div>
+  </div>
+</main>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
+
+// 1. Use the same values as your other pages (anon key only, never the service-role key)
+const SUPABASE_URL = 'https://jnzftobctyftvcfzwrke.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_PSdhM9T2m_wRXNeJbRKFqA_0yPZ9-aA';
+
+// 2. Change these if your profiles table uses different column names
+const TABLE = 'profiles';
+const COL = { name:'full_name', email:'email', phone:'phone', role:'role', interest:'interest', joined:'created_at' };
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function showMsg(text) { $('msg').hidden = false; $('msg').textContent = text; $('count').textContent = ''; }
+
+let users = [];
+
+async function init() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) { location.href = 'login.html'; return; }
+
+  const { data: me } = await supabase.from(TABLE).select(COL.role).eq('id', user.id).single();
+  if (me?.[COL.role] !== 'admin') { document.querySelector('main').innerHTML = '<h1>Access denied</h1><p>This page is for admins only.</p>'; return; }
+
+  const { data, error } = await supabase.from(TABLE).select('*').order(COL.joined, { ascending:false });
+  if (error) { showMsg('Could not load users: ' + error.message); return; }
+  users = data;
+
+  fillFilter('roleFilter', COL.role);
+  fillFilter('interestFilter', COL.interest);
+  render();
+}
+
+function fillFilter(id, col) {
+  const values = [...new Set(users.map(u => u[col]).filter(Boolean))].sort();
+  $(id).insertAdjacentHTML('beforeend', values.map(v => `<option>${esc(v)}</option>`).join(''));
+}
+
+function filtered() {
+  const q = $('q').value.trim().toLowerCase();
+  const role = $('roleFilter').value, interest = $('interestFilter').value;
+  return users.filter(u =>
+    (!role || u[COL.role] === role) &&
+    (!interest || u[COL.interest] === interest) &&
+    (!q || [u[COL.name], u[COL.email], u[COL.phone]].some(v => String(v ?? '').toLowerCase().includes(q)))
+  );
+}
+
+function render() {
+  const list = filtered();
+  $('count').textContent = `${list.length} of ${users.length} users`;
+  $('rows').innerHTML = list.map(u => `<tr>
+    <td>${esc(u[COL.name])}</td><td>${esc(u[COL.email])}</td><td>${esc(u[COL.phone])}</td>
+    <td>${esc(u[COL.role])}</td><td>${esc(u[COL.interest])}</td>
+    <td>${u[COL.joined] ? new Date(u[COL.joined]).toLocaleDateString() : ''}</td></tr>`).join('');
+  $('msg').hidden = list.length > 0;
+  if (!list.length) $('msg').textContent = 'No users match.';
+}
+
+$('csv').onclick = () => {
+  const head = ['Full name','Email','Phone','Role','Interested in','Joined'];
+  const lines = filtered().map(u => [u[COL.name],u[COL.email],u[COL.phone],u[COL.role],u[COL.interest],u[COL.joined]]
+    .map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(','));
+  const blob = new Blob([[head.join(','), ...lines].join('\n')], { type:'text/csv' });
+  const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:'hidayah-users.csv' });
+  a.click(); URL.revokeObjectURL(a.href);
+};
+
+['q','roleFilter','interestFilter'].forEach(id => $(id).addEventListener('input', render));
+init();
+</script>
+</body>
+</html>

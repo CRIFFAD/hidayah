@@ -125,7 +125,7 @@ const COURSES = [
     g: "Q",
     t: "Terminal Exam Preparation",
     d: "Accounting, Finance and so on...",
-    l: "All LevelsS",
+    l: "All Levels",
   },
 ];
 const CATS = {
