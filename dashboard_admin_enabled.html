@@ -33,6 +33,14 @@
         <a class="btn b1 full" id="mainLink" href="learn.html" style="margin-bottom:10px">Quizzes and games</a>
         <a class="btn b3 full" href="chat.html">Class chat</a>
       </div>
+
+      <!-- Visible only to accounts whose database role is admin -->
+      <div class="panel" id="adminPanel" style="display:none">
+        <h3>Administration</h3>
+        <p>Manage users and oversee the school platform.</p>
+        <a class="btn b1 full" href="admin.html">Open Admin Dashboard</a>
+      </div>
+
       <button class="btn b3 full" id="out">Log out</button>
     </div>
 
@@ -73,13 +81,20 @@
   // The role comes from the database, not from the sign-up form
   var res = await sb.from("profiles").select("full_name,role").eq("id", u.id).maybeSingle();
   var p = res.data, m = u.user_metadata || {};
-  var teacher = !!p && p.role === "teacher";
+  var role = p && p.role;
+  var teacher = role === "teacher";
+  var admin = role === "admin";
   var name = (p && p.full_name) || m.full_name || "";
 
-  g("hi").textContent = "Assalamu alaikum, " + (name || (teacher ? "teacher" : "student"));
-  g("sub").textContent = teacher ? "Your teaching space" : "Your learning space";
+  // Admins keep their normal account and can switch to the admin area here.
+  if (admin) {
+    g("adminPanel").style.display = "block";
+  }
 
-  var roleLine = teacher ? "Teacher" : ((m.role || "Student") + (m.programme ? " | " + m.programme : ""));
+  g("hi").textContent = "Assalamu alaikum, " + (name || (admin ? "administrator" : teacher ? "teacher" : "student"));
+  g("sub").textContent = admin ? "Your school administration and learning space" : (teacher ? "Your teaching space" : "Your learning space");
+
+  var roleLine = admin ? "Administrator" : (teacher ? "Teacher" : ((m.role || "Student") + (m.programme ? " | " + m.programme : "")));
   var pr = g("prof");
   pr.textContent = "";
   var b = document.createElement("b");
