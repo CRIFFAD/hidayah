@@ -455,7 +455,7 @@ header.top {
   font-size: 0.95rem;
 }
 .tag {
-  display: inline-block;
+  display: none;
   margin-top: 12px;
   font-size: 0.78rem;
   font-weight: 800;
