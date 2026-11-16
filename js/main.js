@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const f = document.getElementById("site-footer");
   if (f)
     f.outerHTML = `<footer><div class="wrap"><div class="fg"><div><h4>Hidayah Islamic and Arabic School</h4><p>Guiding children and adults to the Quran, the Arabic language and sound academic knowledge.</p></div>
-  <div><h4>Explore</h4><ul><li><a href="about.html">About us</a></li><li><a href="courses.html">Courses</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+  <div><h4>Explore</h4><ul><li><a href="about.html">About us</a></li><li><a href="courses.html">Courses</a></li><li><a href="https://wa.me/2348142526798">Contact</a></li></ul></div>
   <div><h4>Students</h4><ul><li><a href="signup.html">Create account</a></li><li><a href="login.html">Log in</a></li><li><a href="dashboard.html">My dashboard</a></li></ul></div>
   <div><h4>Contact</h4><ul><li>hidaayatulislamiyyah@gmail.com</li><li>+234 814 252 6798 <br> +234 701 149 7819</li><li>Lagos, Nigeria</li></ul></div></div>
   <p class="copy">&copy; ${new Date().getFullYear()} Hidayah Islamic and Arabic School. All rights reserved.</p></div></footer>`;

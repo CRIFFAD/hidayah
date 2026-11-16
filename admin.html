@@ -1,125 +1,1500 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Admin | Hidayah Islamic and Arabic School</title>
-<style>
-  :root { --green:#062b12; --green2:#0b3a19; --gold:#d9a92b; --cream:#fdf6e3; --ink:#0b3a19; }
-  * { box-sizing:border-box; }
-  body { margin:0; font-family:'Nunito',system-ui,sans-serif; background:var(--green); color:var(--cream); }
-  main { max-width:1100px; margin:0 auto; padding:24px 16px 48px; }
-  h1 { font-family:Georgia,serif; margin:0 0 4px; color:var(--gold); }
-  .sub { margin:0 0 20px; opacity:.8; }
-  .bar { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
-  input, select, button { font:inherit; padding:10px 12px; border-radius:10px; border:2px solid var(--gold);
-    background:var(--green2); color:var(--cream); }
-  input { flex:1; min-width:200px; }
-  button { background:var(--gold); color:var(--green); font-weight:700; cursor:pointer; }
-  :focus-visible { outline:3px solid var(--cream); outline-offset:2px; }
-  .wrap { overflow-x:auto; border:2px solid var(--gold); border-radius:12px; background:var(--cream); }
-  table { width:100%; border-collapse:collapse; color:var(--ink); min-width:720px; }
-  th, td { text-align:left; padding:12px 14px; border-bottom:1px solid #e7d9a8; white-space:nowrap; }
-  th { background:var(--gold); color:var(--green); position:sticky; top:0; }
-  tr:last-child td { border-bottom:0; }
-  #msg { padding:16px; }
-</style>
-</head>
-<body>
-<main>
-  <h1>Registered users</h1>
-  <p class="sub" id="count">Loading…</p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin Portal | Hidayah Islamic and Arabic School</title>
+    <style>
+      :root {
+        --green: #062b12;
+        --green2: #0b3a19;
+        --gold: #d9a92b;
+        --cream: #fdf6e3;
+        --ink: #17351f;
+        --muted: #667568;
+        --line: #e8dfc7;
+        --white: #fffdf7;
+        --red: #a7352a;
+        --blue: #245c86;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f4f1e7;
+        color: var(--ink);
+        font:
+          15px/1.5 system-ui,
+          -apple-system,
+          Segoe UI,
+          sans-serif;
+      }
+      .shell {
+        display: grid;
+        grid-template-columns: 245px 1fr;
+        min-height: 100vh;
+      }
+      .side {
+        background: var(--green);
+        color: var(--cream);
+        padding: 25px 16px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: auto;
+      }
+      .brand {
+        padding: 0 10px 24px;
+        border-bottom: 1px solid #ffffff2b;
+      }
+      .brand strong {
+        display: block;
+        color: var(--gold);
+        font:
+          bold 23px Georgia,
+          serif;
+      }
+      .brand small {
+        opacity: 0.75;
+      }
+      .nav {
+        display: grid;
+        gap: 6px;
+        margin-top: 22px;
+      }
+      .nav button {
+        border: 0;
+        background: transparent;
+        color: var(--cream);
+        text-align: left;
+        padding: 11px 12px;
+        border-radius: 9px;
+        cursor: pointer;
+        font: inherit;
+      }
+      .nav button:hover,
+      .nav button.active {
+        background: #ffffff1b;
+        color: var(--gold);
+      }
+      .side-foot {
+        margin: 28px 10px 0;
+        font-size: 12px;
+        opacity: 0.65;
+      }
+      .main {
+        min-width: 0;
+        padding: 28px clamp(16px, 3vw, 38px) 50px;
+      }
+      .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .top h1 {
+        margin: 0;
+        font:
+          bold clamp(25px, 3vw, 34px) Georgia,
+          serif;
+        color: var(--green);
+      }
+      .top p {
+        margin: 3px 0;
+        color: var(--muted);
+      }
+      button,
+      .btn {
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        background: var(--green);
+        color: white;
+        font: 600 14px system-ui;
+        cursor: pointer;
+      }
+      .btn.gold {
+        background: var(--gold);
+        color: var(--green);
+      }
+      .btn.light {
+        background: #e8eddf;
+        color: var(--green);
+      }
+      .btn.danger {
+        background: var(--red);
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: wait;
+      }
+      .panel {
+        display: none;
+      }
+      .panel.active {
+        display: block;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin: 18px 0 24px;
+      }
+      .stat,
+      .card {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        padding: 18px;
+      }
+      .stat small {
+        color: var(--muted);
+      }
+      .stat strong {
+        display: block;
+        font:
+          bold 30px Georgia,
+          serif;
+        color: var(--green);
+        margin-top: 4px;
+      }
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin: 22px 0 14px;
+      }
+      .section-head h2 {
+        font:
+          bold 22px Georgia,
+          serif;
+        margin: 0;
+        color: var(--green);
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin: 12px 0;
+      }
+      .toolbar input,
+      .toolbar select,
+      .field input,
+      .field select,
+      .field textarea {
+        background: white;
+        border: 1px solid #cfc8b6;
+        border-radius: 8px;
+        padding: 10px 11px;
+        color: var(--ink);
+        font: inherit;
+        min-width: 0;
+      }
+      .toolbar input {
+        flex: 1;
+        min-width: 190px;
+      }
+      .table-wrap {
+        overflow: auto;
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 700px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 12px 13px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      th {
+        background: #f0e8d3;
+        color: var(--green);
+        font-size: 13px;
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .pill {
+        display: inline-block;
+        border-radius: 30px;
+        padding: 3px 9px;
+        background: #e8eddf;
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .pill.pending {
+        background: #fff0c7;
+        color: #74520b;
+      }
+      .pill.rejected {
+        background: #f8dfdc;
+        color: #8b2d24;
+      }
+      .pill.published {
+        background: #dceee2;
+      }
+      .empty {
+        padding: 24px;
+        text-align: center;
+        color: var(--muted);
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .field {
+        display: grid;
+        gap: 5px;
+      }
+      .field.full {
+        grid-column: 1/-1;
+      }
+      .field label {
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .field textarea {
+        min-height: 95px;
+        resize: vertical;
+      }
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: #07170dc9;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        z-index: 5;
+      }
+      .modal.open {
+        display: flex;
+      }
+      .dialog {
+        width: min(650px, 100%);
+        max-height: 90vh;
+        overflow: auto;
+        background: var(--cream);
+        border-radius: 14px;
+        padding: 22px;
+      }
+      .dialog h2 {
+        margin: 0 0 16px;
+        color: var(--green);
+        font:
+          bold 24px Georgia,
+          serif;
+      }
+      .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 18px;
+      }
+      .notice {
+        padding: 12px 14px;
+        border-radius: 9px;
+        margin: 12px 0;
+        background: #e8eddf;
+        color: var(--green);
+      }
+      .notice.error {
+        background: #f8dfdc;
+        color: #8b2d24;
+      }
+      .quick {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+      }
+      .quick button {
+        background: #e8eddf;
+        color: var(--green);
+      }
+      .hide {
+        display: none !important;
+      }
+      #toast {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        max-width: min(420px, calc(100vw - 36px));
+        background: var(--green);
+        color: white;
+        padding: 13px 17px;
+        border-radius: 10px;
+        box-shadow: 0 8px 30px #0002;
+        display: none;
+        z-index: 9;
+      }
+      #toast.show {
+        display: block;
+      }
+      .subheading {
+        font:
+          bold 18px Georgia,
+          serif;
+        color: var(--green);
+        margin: 20px 0 8px;
+      }
+      .danger-text {
+        color: var(--red);
+      }
+      @media (max-width: 950px) {
+        .cards {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .shell {
+          grid-template-columns: 205px 1fr;
+        }
+      }
+      @media (max-width: 650px) {
+        .shell {
+          display: block;
+        }
+        .side {
+          position: static;
+          height: auto;
+          padding: 14px;
+        }
+        .brand {
+          padding: 0 8px 12px;
+        }
+        .nav {
+          display: flex;
+          overflow: auto;
+          margin-top: 12px;
+        }
+        .nav button {
+          white-space: nowrap;
+          padding: 9px;
+        }
+        .side-foot {
+          display: none;
+        }
+        .main {
+          padding: 20px 13px 40px;
+        }
+        .top {
+          align-items: flex-start;
+        }
+        .cards {
+          gap: 9px;
+        }
+        .stat {
+          padding: 13px;
+        }
+        .stat strong {
+          font-size: 25px;
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .field.full {
+          grid-column: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="side">
+        <div class="brand">
+          <strong>Hidayah</strong
+          ><small>Islamic and Arabic School<br />Administration</small>
+        </div>
+        <nav class="nav" id="nav">
+          <button class="active" data-panel="overview">Overview</button
+          ><button data-panel="users">User management</button
+          ><button data-panel="students">Students</button
+          ><button data-panel="teachers">Teachers</button
+          ><button data-panel="courses">Courses</button
+          ><button data-panel="admissions">Admissions</button
+          ><button data-panel="quizzes">Quizzes</button
+          ><button data-panel="announcements">Announcements</button
+          ><button data-panel="reports">Reports</button
+          ><button data-panel="settings">Settings</button>
+        </nav>
+        <div class="side-foot">
+          Secure administrator area<br />Powered by Supabase
+        </div>
+      </aside>
+      <main class="main">
+        <header class="top">
+          <div>
+            <h1 id="pageTitle">Overview</h1>
+            <p id="welcome">Loading your school workspace…</p>
+          </div>
+          <button class="btn light" id="logout">Sign out</button>
+        </header>
+        <section class="panel active" id="panel-overview">
+          <div class="cards">
+            <div class="stat">
+              <small>Registered users</small><strong id="statUsers">—</strong>
+            </div>
+            <div class="stat">
+              <small>Students</small><strong id="statStudents">—</strong>
+            </div>
+            <div class="stat">
+              <small>Teachers</small><strong id="statTeachers">—</strong>
+            </div>
+            <div class="stat">
+              <small>Pending admissions</small
+              ><strong id="statAdmissions">—</strong>
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-head">
+              <h2>School activity snapshot</h2>
+              <button class="btn light" id="refreshOverview">Refresh</button>
+            </div>
+            <div class="cards">
+              <div class="stat">
+                <small>Courses</small><strong id="statCourses">—</strong>
+              </div>
+              <div class="stat">
+                <small>Quizzes</small><strong id="statQuizzes">—</strong>
+              </div>
+              <div class="stat">
+                <small>Announcements</small
+                ><strong id="statAnnouncements">—</strong>
+              </div>
+              <div class="stat">
+                <small>Quiz attempts</small><strong id="statAttempts">—</strong>
+              </div>
+            </div>
+            <p class="muted">
+              Counts are read from your Hidayah profiles and the school tables
+              created by the supplied Supabase SQL.
+            </p>
+          </div>
+          <h2 class="subheading">Quick actions</h2>
+          <div class="quick">
+            <button data-go="admissions">Review admissions</button
+            ><button data-go="courses">Add a course</button
+            ><button data-go="announcements">Publish announcement</button
+            ><button data-go="reports">Download reports</button>
+          </div>
+        </section>
+        <section class="panel" id="panel-users">
+          <div class="section-head">
+            <h2>All registered accounts</h2>
+            <button class="btn gold" id="userExport">Export users CSV</button>
+          </div>
+          <div class="toolbar">
+            <input
+              id="userSearch"
+              placeholder="Search name, email or phone"
+            /><select id="userRole">
+              <option value="">All roles</option>
+              <option>student</option>
+              <option>teacher</option>
+              <option>admin</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Role</th>
+                  <th>Joined</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="userRows"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel" id="panel-students">
+          <div class="section-head">
+            <h2>Student directory</h2>
+            <button class="btn gold" id="studentExport">
+              Export students CSV
+            </button>
+          </div>
+          <div class="toolbar">
+            <input
+              id="studentSearch"
+              placeholder="Search students by name, email or phone"
+            />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Programme</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+              <tbody id="studentRows"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel" id="panel-teachers">
+          <div class="section-head">
+            <h2>Teacher directory</h2>
+            <button class="btn gold" id="teacherExport">
+              Export teachers CSV
+            </button>
+          </div>
+          <div class="toolbar">
+            <input
+              id="teacherSearch"
+              placeholder="Search teachers by name, email or phone"
+            />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+              <tbody id="teacherRows"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel" id="panel-courses">
+          <div class="section-head">
+            <h2>Course management</h2>
+            <button class="btn gold" id="addCourse">Add course</button>
+          </div>
+          <div class="toolbar">
+            <input id="courseSearch" placeholder="Search courses" />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Course</th>
+                  <th>Level</th>
+                  <th>Teacher</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="courseRows"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel" id="panel-admissions">
+          <div class="section-head">
+            <h2>Admissions</h2>
+            <button class="btn gold" id="admissionExport">
+              Export admissions CSV
+            </button>
+          </div>
+          <div class="toolbar">
+            <input
+              id="admissionSearch"
+              placeholder="Search applicant name, email or phone"
+            /><select id="admissionStatus">
+              <option value="">All statuses</option>
+              <option>pending</option>
+              <option>approved</option>
+              <option>rejected</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Applicant</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Class / level</th>
+                  <th>Submitted</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admissionRows"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel" id="panel-quizzes">
+          <div class="section-head">
+            <h2>Quiz management</h2>
+            <button class="btn gold" id="addQuiz">Create quiz</button>
+          </div>
+          <div class="toolbar">
+            <input id="quizSearch" placeholder="Search quizzes" />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Quiz</th>
+                  <th>Course</th>
+                  <th>Questions</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="quizRows"></tbody>
+            </table>
+          </div>
+          <p class="muted">
+            Create quizzes and add multiple-choice questions here. Correct
+            answers are stored separately in answer_keys. Student-facing quiz
+            delivery still needs to be connected to your learning pages.
+          </p>
+        </section>
+        <section class="panel" id="panel-announcements">
+          <div class="section-head">
+            <h2>School announcements</h2>
+            <button class="btn gold" id="addAnnouncement">
+              Write announcement
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Audience</th>
+                  <th>Status</th>
+                  <th>Published</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="announcementRows"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel" id="panel-reports">
+          <div class="section-head"><h2>Reports and exports</h2></div>
+          <div class="cards">
+            <div class="card">
+              <h3>Users</h3>
+              <p class="muted">
+                Registered accounts, roles and contact details.
+              </p>
+              <button data-report="users">Download CSV</button>
+            </div>
+            <div class="card">
+              <h3>Admissions</h3>
+              <p class="muted">Applicants and admission decisions.</p>
+              <button data-report="admissions">Download CSV</button>
+            </div>
+            <div class="card">
+              <h3>Courses</h3>
+              <p class="muted">Course catalogue and publication status.</p>
+              <button data-report="courses">Download CSV</button>
+            </div>
+            <div class="card">
+              <h3>Quiz attempts</h3>
+              <p class="muted">Recorded quiz submissions and scores.</p>
+              <button data-report="attempts">Download CSV</button>
+            </div>
+          </div>
+          <p class="muted">
+            Reports are exported from the records available in this Supabase
+            project.
+          </p>
+        </section>
+        <section class="panel" id="panel-settings">
+          <div class="card">
+            <div class="section-head">
+              <h2>School settings</h2>
+              <button class="btn gold" id="saveSettings">Save settings</button>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label for="schoolName">School name</label
+                ><input id="schoolName" />
+              </div>
+              <div class="field">
+                <label for="schoolEmail">Contact email</label
+                ><input id="schoolEmail" type="email" />
+              </div>
+              <div class="field">
+                <label for="schoolPhone">Contact phone</label
+                ><input id="schoolPhone" />
+              </div>
+              <div class="field">
+                <label for="schoolWebsite">Website URL</label
+                ><input id="schoolWebsite" type="url" />
+              </div>
+              <div class="field full">
+                <label for="schoolNotice">Dashboard notice</label
+                ><textarea
+                  id="schoolNotice"
+                  placeholder="Optional message for the school dashboard"
+                ></textarea>
+              </div>
+            </div>
+            <p class="muted">
+              These settings are stored in Supabase. Your public website will
+              need to read them before they appear to visitors.
+            </p>
+          </div>
+        </section>
+        <div id="globalMsg" class="notice hide" role="status"></div>
+      </main>
+    </div>
+    <div class="modal" id="modal">
+      <div class="dialog">
+        <h2 id="modalTitle">Edit record</h2>
+        <form id="modalForm">
+          <div id="modalFields" class="form-grid"></div>
+          <div class="dialog-actions">
+            <button type="button" class="btn light" id="modalCancel">
+              Cancel</button
+            ><button type="submit" class="btn gold">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script type="module">
+      import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+      const SUPABASE_URL = "https://jnzftobctyftvcfzwrke.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "sb_publishable_PSdhM9T2m_wRXNeJbRKFqA_0yPZ9-aA";
+      const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const $ = (id) => document.getElementById(id);
+      const esc = (v) =>
+        String(v ?? "").replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      const date = (v) => (v ? new Date(v).toLocaleDateString() : "—");
+      let users = [],
+        courses = [],
+        admissions = [],
+        quizzes = [],
+        announcements = [],
+        attempts = [],
+        settings = {},
+        currentUser = null,
+        modalSave = null;
+      const tables = {
+        courses: "hidayah_courses",
+        admissions: "hidayah_admissions",
+        quizzes: "quizzes",
+        announcements: "hidayah_announcements",
+        attempts: "attempts",
+        settings: "hidayah_settings",
+      };
+      function toast(msg, error = false) {
+        $("toast").textContent = msg;
+        $("toast").style.background = error ? "#8b2d24" : "var(--green)";
+        $("toast").classList.add("show");
+        setTimeout(() => $("toast").classList.remove("show"), 3500);
+      }
+      function message(msg, error = false) {
+        $("globalMsg").textContent = msg;
+        $("globalMsg").classList.toggle("error", error);
+        $("globalMsg").classList.remove("hide");
+      }
+      function switchPanel(name) {
+        document
+          .querySelectorAll(".panel")
+          .forEach((p) =>
+            p.classList.toggle("active", p.id === "panel-" + name),
+          );
+        document
+          .querySelectorAll("#nav button")
+          .forEach((b) =>
+            b.classList.toggle("active", b.dataset.panel === name),
+          );
+        $("pageTitle").textContent =
+          {
+            overview: "Overview",
+            users: "User management",
+            students: "Students",
+            teachers: "Teachers",
+            courses: "Courses",
+            admissions: "Admissions",
+            quizzes: "Quizzes",
+            announcements: "Announcements",
+            reports: "Reports",
+            settings: "Settings",
+          }[name] || name;
+      }
+      $("nav").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-panel]");
+        if (b) switchPanel(b.dataset.panel);
+      });
+      document
+        .querySelectorAll("[data-go]")
+        .forEach((b) => (b.onclick = () => switchPanel(b.dataset.go)));
+      async function getRows(table, order = "created_at") {
+        const { data, error } = await sb
+          .from(table)
+          .select("*")
+          .order(order, { ascending: false });
+        if (error) throw error;
+        return data || [];
+      }
+      async function loadAll() {
+        try {
+          users = await getRows("profiles");
+          courses = await getRows(tables.courses);
+          admissions = await getRows(tables.admissions);
+          quizzes = await getRows(tables.quizzes);
+          announcements = await getRows(tables.announcements, "created_at");
+          attempts = await getRows(tables.attempts);
+          await loadSettings();
+          renderAll();
+        } catch (e) {
+          message(
+            "Some data could not be loaded. Check that the Supabase SQL setup has been run and that admin policies are active. " +
+              e.message,
+            true,
+          );
+        }
+      }
+      async function init() {
+        try {
+          const {
+            data: { user },
+            error,
+          } = await sb.auth.getUser();
+          if (error) throw error;
+          if (!user) {
+            location.href = "login.html";
+            return;
+          }
+          currentUser = user;
+          const { data: me, error: profileError } = await sb
+            .from("profiles")
+            .select("full_name,role")
+            .eq("id", user.id)
+            .single();
+          if (profileError) throw profileError;
+          if (me?.role !== "admin") {
+            document.querySelector(".shell").innerHTML =
+              "<main><h1>Access denied</h1><p>This page is restricted to administrators.</p></main>";
+            return;
+          }
+          $("welcome").textContent = "Welcome, " + (me.full_name || user.email);
+          await loadAll();
+        } catch (e) {
+          message("Unable to verify administrator access: " + e.message, true);
+        }
+      }
+      function renderAll() {
+        renderUsers();
+        renderPeople("student");
+        renderPeople("teacher");
+        renderCourses();
+        renderAdmissions();
+        renderQuizzes();
+        renderAnnouncements();
+        renderOverview();
+      }
+      function renderOverview() {
+        $("statUsers").textContent = users.length;
+        $("statStudents").textContent = users.filter(
+          (u) => u.role === "student",
+        ).length;
+        $("statTeachers").textContent = users.filter(
+          (u) => u.role === "teacher",
+        ).length;
+        $("statAdmissions").textContent = admissions.filter(
+          (a) => a.status === "pending",
+        ).length;
+        $("statCourses").textContent = courses.length;
+        $("statQuizzes").textContent = quizzes.length;
+        $("statAnnouncements").textContent = announcements.length;
+        $("statAttempts").textContent = attempts.length;
+      }
+      function renderUsers() {
+        const q = $("userSearch").value.toLowerCase(),
+          role = $("userRole").value;
+        const list = users.filter(
+          (u) =>
+            (!role || u.role === role) &&
+            [u.full_name, u.email, u.phone].some((v) =>
+              String(v || "")
+                .toLowerCase()
+                .includes(q),
+            ),
+        );
+        $("userRows").innerHTML =
+          list
+            .map(
+              (u) =>
+                `<tr><td>${esc(u.full_name)}</td><td>${esc(u.email)}</td><td>${esc(u.phone)}</td><td><span class="pill">${esc(u.role)}</span></td><td>${date(u.created_at)}</td><td>${u.id === currentUser.id ? '<span class="muted">Current account</span>' : `<button class="btn light" data-role-id="${esc(u.id)}" data-role="${esc(u.role)}">Change role</button>`}</td></tr>`,
+            )
+            .join("") || emptyRow(6);
+      }
+      function renderPeople(role) {
+        const q = $(role + "Search").value.toLowerCase();
+        const list = users.filter(
+          (u) =>
+            u.role === role &&
+            [u.full_name, u.email, u.phone].some((v) =>
+              String(v || "")
+                .toLowerCase()
+                .includes(q),
+            ),
+        );
+        $(role + "Rows").innerHTML =
+          list
+            .map(
+              (u) =>
+                `<tr><td>${esc(u.full_name)}</td><td>${esc(u.email)}</td><td>${esc(u.phone)}</td>${role === "student" ? `<td>${esc(u.programme)}</td>` : ""}<td>${date(u.created_at)}</td></tr>`,
+            )
+            .join("") || emptyRow(role === "student" ? 5 : 4);
+      }
+      function emptyRow(n) {
+        return `<tr><td colspan="${n}" class="empty">No records found.</td></tr>`;
+      }
+      function renderCourses() {
+        const q = $("courseSearch").value.toLowerCase();
+        const list = courses.filter((c) =>
+          [c.title, c.level, c.teacher_name].some((v) =>
+            String(v || "")
+              .toLowerCase()
+              .includes(q),
+          ),
+        );
+        $("courseRows").innerHTML =
+          list
+            .map(
+              (c) =>
+                `<tr><td><b>${esc(c.title)}</b><br><small>${esc(c.description || "")}</small></td><td>${esc(c.level)}</td><td>${esc(c.teacher_name || "—")}</td><td><span class="pill ${c.status === "published" ? "published" : ""}">${esc(c.status)}</span></td><td>${date(c.created_at)}</td><td><button class="btn light" data-edit-course="${c.id}">Edit</button> <button class="btn danger" data-delete="courses" data-id="${c.id}">Delete</button></td></tr>`,
+            )
+            .join("") || emptyRow(6);
+      }
+      function renderAdmissions() {
+        const q = $("admissionSearch").value.toLowerCase(),
+          status = $("admissionStatus").value;
+        const list = admissions.filter(
+          (a) =>
+            (!status || a.status === status) &&
+            [a.applicant_name, a.email, a.phone, a.level].some((v) =>
+              String(v || "")
+                .toLowerCase()
+                .includes(q),
+            ),
+        );
+        $("admissionRows").innerHTML =
+          list
+            .map(
+              (a) =>
+                `<tr><td>${esc(a.applicant_name)}</td><td>${esc(a.email)}</td><td>${esc(a.phone)}</td><td>${esc(a.level)}</td><td>${date(a.created_at)}</td><td><span class="pill ${a.status}">${esc(a.status)}</span></td><td><button class="btn light" data-admission-status="approved" data-id="${a.id}">Approve</button> <button class="btn danger" data-admission-status="rejected" data-id="${a.id}">Reject</button></td></tr>`,
+            )
+            .join("") || emptyRow(7);
+      }
+      function renderQuizzes() {
+        const q = $("quizSearch").value.toLowerCase();
+        const list = quizzes.filter((v) =>
+          [v.title, v.description].some((x) =>
+            String(x || "")
+              .toLowerCase()
+              .includes(q),
+          ),
+        );
+        $("quizRows").innerHTML =
+          list
+            .map(
+              (v) =>
+                `<tr><td><b>${esc(v.title)}</b><br><small>${esc(v.description || "")}</small></td><td>${esc(courses.find((c) => c.id === v.course_id)?.title || "—")}</td><td>${esc(v.q_count ?? 0)}</td><td><span class="pill ${v.status === "published" ? "published" : ""}">${esc(v.status)}</span></td><td>${date(v.created_at)}</td><td><button class="btn light" data-questions-quiz="${v.id}">Questions</button> <button class="btn light" data-edit-quiz="${v.id}">Edit</button> <button class="btn danger" data-delete="quizzes" data-id="${v.id}">Delete</button></td></tr>`,
+            )
+            .join("") || emptyRow(6);
+      }
+      function renderAnnouncements() {
+        $("announcementRows").innerHTML =
+          announcements
+            .map(
+              (a) =>
+                `<tr><td><b>${esc(a.title)}</b><br><small>${esc(a.body || "")}</small></td><td>${esc(a.audience)}</td><td><span class="pill ${a.status === "published" ? "published" : ""}">${esc(a.status)}</span></td><td>${date(a.published_at)}</td><td><button class="btn light" data-edit-announcement="${a.id}">Edit</button> <button class="btn danger" data-delete="announcements" data-id="${a.id}">Delete</button></td></tr>`,
+            )
+            .join("") || emptyRow(5);
+      }
+      function field(
+        name,
+        label,
+        type = "text",
+        value = "",
+        required = false,
+        options = null,
+      ) {
+        let control = options
+          ? `<select name="${name}" ${required ? "required" : ""}>${options.map((o) => `<option value="${esc(o)}" ${o === value ? "selected" : ""}>${esc(o)}</option>`).join("")}</select>`
+          : type === "textarea"
+            ? `<textarea name="${name}" ${required ? "required" : ""}>${esc(value)}</textarea>`
+            : `<input name="${name}" type="${type}" value="${esc(value)}" ${required ? "required" : ""}>`;
+        return `<div class="field"><label>${label}</label>${control}</div>`;
+      }
+      function openModal(title, fields, save) {
+        $("modalTitle").textContent = title;
+        $("modalFields").innerHTML = fields.join("");
+        modalSave = save;
+        $("modal").classList.add("open");
+      }
+      $("modalCancel").onclick = () => $("modal").classList.remove("open");
+      $("modalForm").onsubmit = async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(
+          new FormData(e.currentTarget).entries(),
+        );
+        try {
+          await modalSave(data);
+          $("modal").classList.remove("open");
+          await loadAll();
+          toast("Saved successfully.");
+        } catch (err) {
+          toast(err.message, true);
+        }
+      };
+      function courseForm(c = {}) {
+        openModal(
+          c.id ? "Edit course" : "Add course",
+          [
+            field("title", "Course title", "text", c.title || "", true),
+            field("level", "Level / class", "text", c.level || "", true),
+            field("teacher_name", "Teacher name", "text", c.teacher_name || ""),
+            field("status", "Status", "text", c.status || "draft", true, [
+              "draft",
+              "published",
+              "archived",
+            ]),
+            field(
+              "description",
+              "Description",
+              "textarea",
+              c.description || "",
+            ),
+          ],
+          async (d) => {
+            const payload = { ...d, updated_at: new Date().toISOString() };
+            const r = c.id
+              ? await sb.from(tables.courses).update(payload).eq("id", c.id)
+              : await sb.from(tables.courses).insert(payload);
+            if (r.error) throw r.error;
+          },
+        );
+      }
+      function quizForm(q = {}) {
+        const opts = ["draft", "published", "archived"];
+        const courseField = `<div class="field"><label>Course</label><select name="course_id"><option value="">No course linked</option>${courses.map((c) => `<option value="${esc(c.id)}" ${String(c.id) === String(q.course_id || "") ? "selected" : ""}>${esc(c.title)} — ${esc(c.level)}</option>`).join("")}</select></div>`;
+        openModal(
+          q.id ? "Edit quiz" : "Create quiz",
+          [
+            field("title", "Quiz title", "text", q.title || "", true),
+            field("subject", "Subject", "text", q.subject || "", true),
+            field("level", "Level", "text", q.level || "", true),
+            courseField,
+            field("q_count", "Question count", "number", q.q_count ?? 0),
+            field("status", "Status", "text", q.status || "draft", true, opts),
+            field(
+              "description",
+              "Description",
+              "textarea",
+              q.description || "",
+            ),
+          ],
+          async (d) => {
+            d.q_count = Number(d.q_count || 0);
+            d.course_id = d.course_id || null;
+            d.teacher_id = q.teacher_id || currentUser.id;
+            const r = q.id
+              ? await sb.from(tables.quizzes).update(d).eq("id", q.id)
+              : await sb.from(tables.quizzes).insert(d);
+            if (r.error) throw r.error;
+          },
+        );
+      }
+      async function manageQuizQuestions(quiz) {
+        const { data: questions, error } = await sb
+          .from("questions")
+          .select("*")
+          .eq("quiz_id", quiz.id)
+          .order("position", { ascending: true });
+        if (error) return toast(error.message, true);
+        const list = questions || [];
+        const current =
+          list.map((q, i) => `${i + 1}. ${q.text}`).join("\n") ||
+          "No questions added yet.";
+        const action = prompt(
+          `Questions for: ${quiz.title}\n\n${current}\n\nEnter ADD, EDIT number, DELETE number, or CANCEL.`,
+          "ADD",
+        );
+        if (!action) return;
+        const command = action.trim().toUpperCase();
+        if (command === "CANCEL") return;
+        if (command === "ADD") {
+          const questionText = prompt("Enter the question:");
+          if (!questionText?.trim()) return;
+          const optionsRaw = prompt(
+            "Enter answer options, one per line (at least two):",
+          );
+          if (!optionsRaw) return;
+          const options = optionsRaw
+            .split("\n")
+            .map((x) => x.trim())
+            .filter(Boolean);
+          if (options.length < 2)
+            return toast("Enter at least two answer options.", true);
+          const correct =
+            Number(
+              prompt(
+                `Enter the number of the correct option (1-${options.length}):`,
+                "1",
+              ),
+            ) - 1;
+          if (
+            !Number.isInteger(correct) ||
+            correct < 0 ||
+            correct >= options.length
+          )
+            return toast("Invalid correct option number.", true);
+          const { data: newQuestion, error: insertError } = await sb
+            .from("questions")
+            .insert({
+              quiz_id: quiz.id,
+              position: list.length + 1,
+              text: questionText.trim(),
+              options,
+            })
+            .select("id")
+            .single();
+          if (insertError) return toast(insertError.message, true);
+          const { error: keyError } = await sb
+            .from("answer_keys")
+            .insert({ question_id: newQuestion.id, correct });
+          if (keyError) {
+            await sb.from("questions").delete().eq("id", newQuestion.id);
+            return toast(keyError.message, true);
+          }
+        } else if (command.startsWith("EDIT ")) {
+          const index = Number(command.slice(5)) - 1;
+          const q = list[index];
+          if (!q) return toast("That question number does not exist.", true);
+          const questionText = prompt("Edit question text:", q.text);
+          if (!questionText?.trim()) return;
+          const optionsRaw = prompt(
+            "Edit answer options, one per line:",
+            (q.options || []).join("\n"),
+          );
+          if (!optionsRaw) return;
+          const options = optionsRaw
+            .split("\n")
+            .map((x) => x.trim())
+            .filter(Boolean);
+          if (options.length < 2)
+            return toast("Enter at least two answer options.", true);
+          const { data: key } = await sb
+            .from("answer_keys")
+            .select("correct")
+            .eq("question_id", q.id)
+            .maybeSingle();
+          const correct =
+            Number(
+              prompt(
+                `Enter the number of the correct option (1-${options.length}):`,
+                String((key?.correct ?? 0) + 1),
+              ),
+            ) - 1;
+          if (
+            !Number.isInteger(correct) ||
+            correct < 0 ||
+            correct >= options.length
+          )
+            return toast("Invalid correct option number.", true);
+          const { error: updateError } = await sb
+            .from("questions")
+            .update({ text: questionText.trim(), options })
+            .eq("id", q.id);
+          if (updateError) return toast(updateError.message, true);
+          if (key) {
+            const { error: keyError } = await sb
+              .from("answer_keys")
+              .update({ correct })
+              .eq("question_id", q.id);
+            if (keyError) return toast(keyError.message, true);
+          } else {
+            const { error: keyError } = await sb
+              .from("answer_keys")
+              .insert({ question_id: q.id, correct });
+            if (keyError) return toast(keyError.message, true);
+          }
+        } else if (command.startsWith("DELETE ")) {
+          const index = Number(command.slice(7)) - 1;
+          const q = list[index];
+          if (!q) return toast("That question number does not exist.", true);
+          if (!confirm(`Delete question ${index + 1}?`)) return;
+          const { error: keyError } = await sb
+            .from("answer_keys")
+            .delete()
+            .eq("question_id", q.id);
+          if (keyError) return toast(keyError.message, true);
+          const { error: deleteError } = await sb
+            .from("questions")
+            .delete()
+            .eq("id", q.id);
+          if (deleteError) return toast(deleteError.message, true);
+          const remaining = list.filter((x) => x.id !== q.id);
+          for (let i = 0; i < remaining.length; i++) {
+            const { error } = await sb
+              .from("questions")
+              .update({ position: i + 1 })
+              .eq("id", remaining[i].id);
+            if (error) return toast(error.message, true);
+          }
+        } else
+          return toast("Use ADD, EDIT number, DELETE number, or CANCEL.", true);
+        const { data: latest, error: countError } = await sb
+          .from("questions")
+          .select("id")
+          .eq("quiz_id", quiz.id);
+        if (countError) return toast(countError.message, true);
+        const { error: updateQuizError } = await sb
+          .from("quizzes")
+          .update({ q_count: (latest || []).length })
+          .eq("id", quiz.id);
+        if (updateQuizError) return toast(updateQuizError.message, true);
+        await loadAll();
+        toast("Quiz questions updated successfully.");
+      }
 
-  <div class="bar">
-    <input id="q" type="search" placeholder="Search name, email or phone">
-    <select id="roleFilter"><option value="">All roles</option></select>
-    <select id="interestFilter"><option value="">All interests</option></select>
-    <button id="csv" type="button">Download CSV</button>
-  </div>
-
-  <div class="wrap">
-    <table>
-      <thead>
-        <tr><th>Full name</th><th>Email</th><th>Phone</th><th>Role</th><th>Interested in</th><th>Joined</th></tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
-    <div id="msg" hidden></div>
-  </div>
-</main>
-
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
-
-// 1. Use the same values as your other pages (anon key only, never the service-role key)
-const SUPABASE_URL = 'https://jnzftobctyftvcfzwrke.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_PSdhM9T2m_wRXNeJbRKFqA_0yPZ9-aA';
-
-// 2. Change these if your profiles table uses different column names
-const TABLE = 'profiles';
-const COL = { name:'full_name', email:'email', phone:'phone', role:'role', interest:'interest', joined:'created_at' };
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const $ = id => document.getElementById(id);
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-function showMsg(text) { $('msg').hidden = false; $('msg').textContent = text; $('count').textContent = ''; }
-
-let users = [];
-
-async function init() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) { location.href = 'login.html'; return; }
-
-  const { data: me } = await supabase.from(TABLE).select(COL.role).eq('id', user.id).single();
-  if (me?.[COL.role] !== 'admin') { document.querySelector('main').innerHTML = '<h1>Access denied</h1><p>This page is for admins only.</p>'; return; }
-
-  const { data, error } = await supabase.from(TABLE).select('*').order(COL.joined, { ascending:false });
-  if (error) { showMsg('Could not load users: ' + error.message); return; }
-  users = data;
-
-  fillFilter('roleFilter', COL.role);
-  fillFilter('interestFilter', COL.interest);
-  render();
-}
-
-function fillFilter(id, col) {
-  const values = [...new Set(users.map(u => u[col]).filter(Boolean))].sort();
-  $(id).insertAdjacentHTML('beforeend', values.map(v => `<option>${esc(v)}</option>`).join(''));
-}
-
-function filtered() {
-  const q = $('q').value.trim().toLowerCase();
-  const role = $('roleFilter').value, interest = $('interestFilter').value;
-  return users.filter(u =>
-    (!role || u[COL.role] === role) &&
-    (!interest || u[COL.interest] === interest) &&
-    (!q || [u[COL.name], u[COL.email], u[COL.phone]].some(v => String(v ?? '').toLowerCase().includes(q)))
-  );
-}
-
-function render() {
-  const list = filtered();
-  $('count').textContent = `${list.length} of ${users.length} users`;
-  $('rows').innerHTML = list.map(u => `<tr>
-    <td>${esc(u[COL.name])}</td><td>${esc(u[COL.email])}</td><td>${esc(u[COL.phone])}</td>
-    <td>${esc(u[COL.role])}</td><td>${esc(u[COL.interest])}</td>
-    <td>${u[COL.joined] ? new Date(u[COL.joined]).toLocaleDateString() : ''}</td></tr>`).join('');
-  $('msg').hidden = list.length > 0;
-  if (!list.length) $('msg').textContent = 'No users match.';
-}
-
-$('csv').onclick = () => {
-  const head = ['Full name','Email','Phone','Role','Interested in','Joined'];
-  const lines = filtered().map(u => [u[COL.name],u[COL.email],u[COL.phone],u[COL.role],u[COL.interest],u[COL.joined]]
-    .map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(','));
-  const blob = new Blob([[head.join(','), ...lines].join('\n')], { type:'text/csv' });
-  const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:'hidayah-users.csv' });
-  a.click(); URL.revokeObjectURL(a.href);
-};
-
-['q','roleFilter','interestFilter'].forEach(id => $(id).addEventListener('input', render));
-init();
-</script>
-</body>
+      function announcementForm(a = {}) {
+        openModal(
+          a.id ? "Edit announcement" : "Write announcement",
+          [
+            field("title", "Title", "text", a.title || "", true),
+            field("audience", "Audience", "text", a.audience || "all", true, [
+              "all",
+              "students",
+              "teachers",
+            ]),
+            field("status", "Status", "text", a.status || "draft", true, [
+              "draft",
+              "published",
+            ]),
+            field("body", "Announcement", "textarea", a.body || "", true),
+          ],
+          async (d) => {
+            d.published_at =
+              d.status === "published"
+                ? a.published_at || new Date().toISOString()
+                : null;
+            const r = a.id
+              ? await sb.from(tables.announcements).update(d).eq("id", a.id)
+              : await sb.from(tables.announcements).insert(d);
+            if (r.error) throw r.error;
+          },
+        );
+      }
+      $("addCourse").onclick = () => courseForm();
+      $("addQuiz").onclick = () => quizForm();
+      $("addAnnouncement").onclick = () => announcementForm();
+      document.addEventListener("click", async (e) => {
+        const role = e.target.closest("[data-role-id]");
+        if (role) {
+          const id = role.dataset.roleId,
+            old = role.dataset.role;
+          const next = prompt(
+            "Enter new role: student, teacher, or admin",
+            old,
+          );
+          if (!next || !["student", "teacher", "admin"].includes(next))
+            return toast("Choose student, teacher or admin.", true);
+          if (!confirm(`Change this account role to ${next}?`)) return;
+          const { error } = await sb.rpc("hidayah_set_user_role", {
+            target_user_id: id,
+            new_role: next,
+          });
+          if (error) return toast(error.message, true);
+          await loadAll();
+          return toast("User role updated.");
+        }
+        const editCourse = e.target.closest("[data-edit-course]");
+        if (editCourse) {
+          courseForm(
+            courses.find((x) => x.id === editCourse.dataset.editCourse),
+          );
+          return;
+        }
+        const questionsBtn = e.target.closest("[data-questions-quiz]");
+        if (questionsBtn) {
+          const quiz = quizzes.find(
+            (x) => x.id === questionsBtn.dataset.questionsQuiz,
+          );
+          if (quiz) await manageQuizQuestions(quiz);
+          return;
+        }
+        const editQuiz = e.target.closest("[data-edit-quiz]");
+        if (editQuiz) {
+          quizForm(quizzes.find((x) => x.id === editQuiz.dataset.editQuiz));
+          return;
+        }
+        const editAnn = e.target.closest("[data-edit-announcement]");
+        if (editAnn) {
+          announcementForm(
+            announcements.find(
+              (x) => x.id === editAnn.dataset.editAnnouncement,
+            ),
+          );
+          return;
+        }
+        const del = e.target.closest("[data-delete]");
+        if (del) {
+          if (!confirm("Permanently delete this record?")) return;
+          const { error } = await sb
+            .from(tables[del.dataset.delete])
+            .delete()
+            .eq("id", del.dataset.id);
+          if (error) return toast(error.message, true);
+          await loadAll();
+          return toast("Record deleted.");
+        }
+        const decision = e.target.closest("[data-admission-status]");
+        if (decision) {
+          const { error } = await sb
+            .from(tables.admissions)
+            .update({
+              status: decision.dataset.admissionStatus,
+              reviewed_by: currentUser.id,
+              reviewed_at: new Date().toISOString(),
+            })
+            .eq("id", decision.dataset.id);
+          if (error) return toast(error.message, true);
+          await loadAll();
+          toast("Admission status updated.");
+        }
+      });
+      async function loadSettings() {
+        const { data, error } = await sb.from(tables.settings).select("*");
+        if (error) throw error;
+        settings = Object.fromEntries(
+          (data || []).map((x) => [x.key, x.value]),
+        );
+        $("schoolName").value =
+          settings.school_name || "Hidayah Islamic and Arabic School";
+        $("schoolEmail").value = settings.contact_email || "";
+        $("schoolPhone").value = settings.contact_phone || "";
+        $("schoolWebsite").value = settings.website_url || "";
+        $("schoolNotice").value = settings.dashboard_notice || "";
+      }
+      $("saveSettings").onclick = async () => {
+        const vals = {
+          school_name: $("schoolName").value,
+          contact_email: $("schoolEmail").value,
+          contact_phone: $("schoolPhone").value,
+          website_url: $("schoolWebsite").value,
+          dashboard_notice: $("schoolNotice").value,
+        };
+        for (const [key, value] of Object.entries(vals)) {
+          const { error } = await sb
+            .from(tables.settings)
+            .upsert(
+              {
+                key,
+                value,
+                updated_by: currentUser.id,
+                updated_at: new Date().toISOString(),
+              },
+              { onConflict: "key" },
+            );
+          if (error) return toast(error.message, true);
+        }
+        await loadSettings();
+        toast("School settings saved.");
+      };
+      function csv(rows, filename) {
+        if (!rows?.length)
+          return toast("There are no records to export.", true);
+        const cols = [...new Set(rows.flatMap((r) => Object.keys(r)))];
+        const quote = (v) => {
+          let s = String(v ?? "");
+          if (/^[=+@\-]/.test(s)) s = "'" + s;
+          return '"' + s.replace(/"/g, '""') + '"';
+        };
+        const content = [
+          cols.map(quote).join(","),
+          ...rows.map((r) => cols.map((c) => quote(r[c])).join(",")),
+        ].join("\r\n");
+        const url = URL.createObjectURL(
+          new Blob([content], { type: "text/csv;charset=utf-8" }),
+        );
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+      $("userExport").onclick = () => csv(users, "hidayah-users.csv");
+      $("studentExport").onclick = () =>
+        csv(
+          users.filter((u) => u.role === "student"),
+          "hidayah-students.csv",
+        );
+      $("teacherExport").onclick = () =>
+        csv(
+          users.filter((u) => u.role === "teacher"),
+          "hidayah-teachers.csv",
+        );
+      $("admissionExport").onclick = () =>
+        csv(admissions, "hidayah-admissions.csv");
+      document.querySelectorAll("[data-report]").forEach(
+        (b) =>
+          (b.onclick = () => {
+            const map = {
+              users: [users, "hidayah-users.csv"],
+              admissions: [admissions, "hidayah-admissions.csv"],
+              courses: [courses, "hidayah-courses.csv"],
+              attempts: [attempts, "hidayah-quiz-attempts.csv"],
+            };
+            csv(...map[b.dataset.report]);
+          }),
+      );
+      ["userSearch", "userRole"].forEach((id) =>
+        $(id).addEventListener("input", renderUsers),
+      );
+      ["studentSearch", "teacherSearch"].forEach((id) =>
+        $(id).addEventListener("input", () =>
+          renderPeople(id.replace("Search", "")),
+        ),
+      );
+      $("courseSearch").oninput = renderCourses;
+      $("admissionSearch").oninput = renderAdmissions;
+      $("admissionStatus").onchange = renderAdmissions;
+      $("quizSearch").oninput = renderQuizzes;
+      $("refreshOverview").onclick = () =>
+        loadAll().then(() => toast("Overview refreshed."));
+      $("logout").onclick = async () => {
+        await sb.auth.signOut();
+        location.href = "login.html";
+      };
+      init();
+    </script>
+  </body>
 </html>

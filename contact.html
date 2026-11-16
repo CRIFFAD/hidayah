@@ -39,7 +39,7 @@
           </div>
           <ul class="list">
             <li>hidaayatulislamiyyah@gmail.com</li>
-            <li>+234 814 252 6798</li>
+            <li><a href="https://wa.me/2348142526798" target="_blank" rel="noopener noreferrer">+234 814 252 6798</a></li>
             <li>+234 701 149 7819</li>
             <li>Lagos, Nigeria</li>
             <li>Classes run Everyday</li>
@@ -68,23 +68,25 @@
     <script src="js/supabase.js"></script>
     <script src="js/main.js"></script>
     <script>
-      const cf = document.getElementById("cf"),
-        mg = document.getElementById("msg");
-      cf.onsubmit = async (e) => {
+      const cf = document.getElementById("cf");
+      cf.onsubmit = (e) => {
         e.preventDefault();
-        const b = cf.querySelector("button");
-        b.disabled = true;
-        const { error } = await DB.sendMessage({
-          name: document.getElementById("n").value,
-          email: document.getElementById("e").value,
-          message: document.getElementById("m").value,
-        });
-        b.disabled = false;
-        mg.className = "msg " + (error ? "err" : "ok");
-        mg.textContent = error
-          ? "Message not sent. Please try again."
-          : "Message sent. We will reply soon.";
-        if (!error) cf.reset();
+
+        const name = document.getElementById("n").value.trim();
+        const email = document.getElementById("e").value.trim();
+        const message = document.getElementById("m").value.trim();
+
+        const whatsappMessage =
+          `Hello Hidayah Islamic and Arabic School,\n\n` +
+          `My name is ${name}.\n` +
+          `Email: ${email}\n\n` +
+          `Message: ${message}`;
+
+        const whatsappURL =
+          "https://wa.me/2348142526798?text=" +
+          encodeURIComponent(whatsappMessage);
+
+        window.open(whatsappURL, "_blank", "noopener,noreferrer");
       };
     </script>
     <script src="js/pwa.js"></script>
